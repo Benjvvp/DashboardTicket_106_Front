@@ -33,28 +33,31 @@ const Login: NextPage = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    try {
-      const data: loginFormType = loginForm;
-      const response = await loginUser(data);
-      if (response.status === 200) {
-        saveItem("token", response.data.token);
-        setIsLoggedIn(true);
-        setUserData(response.data.user);
-        setloginCorrectly(true);
-        setTimeout(() => {
-          router.push("/");
-        }, 2000);
-      }
-      if (response.status === 400) {
-        if (response.data.message === "User not found") {
-          setErrorEmail("User not found");
+    //Check all errors
+    if (errorEmail === "" && errorPassword === "") {
+      try {
+        const data: loginFormType = loginForm;
+        const response = await loginUser(data);
+        if (response.status === 200) {
+          saveItem("token", response.data.token);
+          setIsLoggedIn(true);
+          setUserData(response.data.user);
+          setloginCorrectly(true);
+          setTimeout(() => {
+            router.push("/");
+          }, 2000);
         }
-        if (response.data.message === "Incorrect password") {
-          setErrorPassword("Incorrect password");
+        if (response.status === 400) {
+          if (response.data.message === "User not found") {
+            setErrorEmail("User not found");
+          }
+          if (response.data.message === "Incorrect password") {
+            setErrorPassword("Incorrect password");
+          }
         }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
     }
   };
 
@@ -67,7 +70,7 @@ const Login: NextPage = () => {
       setErrorEmail("");
     }
 
-    if(loginForm.email.split('').includes('@') === false) {
+    if (loginForm.email.split("").includes("@") === false) {
       setErrorEmail("Email is not valid");
     } else {
       setErrorEmail("");
@@ -84,7 +87,6 @@ const Login: NextPage = () => {
     } else {
       setErrorPassword("");
     }
-
   }, [loginForm, intentToSendForm]);
 
   return (
@@ -187,16 +189,19 @@ const Login: NextPage = () => {
                     </button>
                   </div>
                   <div className="pt-5 w-full">
-                    <a className="text-sm text-[#B2A7FF] block text-right" href="#">
+                    <a
+                      className="text-sm text-[#B2A7FF] block text-right"
+                      href="#"
+                    >
                       Forgot password?
                     </a>
                   </div>
                   <div className="pt-10">
                     <p className="text-center text-[14px] text-[#07070C]">
-                    Don’t have an account?{" "}
+                      Don’t have an account?{" "}
                       <Link href="/auth/register">
                         <a className="text-[#7364DB] hover:text-[#B2A7FF]">
-                         Sign up
+                          Sign up
                         </a>
                       </Link>
                     </p>

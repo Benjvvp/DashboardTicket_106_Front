@@ -31,7 +31,6 @@ export default function UserContextProvider({children}: any){
                         setUserData({...response.data});
                   }
             } catch (error) {
-                  console.log(error);
                   setIsLoggedIn(false);
             }
             setIsLoggedIn(false);

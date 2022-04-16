@@ -52,7 +52,6 @@ export const registerUser = async (data: {
   AuthCode: string;
 }) => {
   try {
-    console.log(data);
     const response = await axios.request({
       method: "post",
       url: `${mainUrl}/auth/register`,

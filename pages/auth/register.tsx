@@ -44,38 +44,45 @@ const Register: NextPage = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    try {
-      const data: registerFormType = registerForm;
-      const response = await registerUser(data);
-      if (response.status === 200) {
-        saveItem("token", response.data.token);
-        setIsLoggedIn(true);
-        setUserData(response.data.user);
-        setRegisterCorrectly(true);
-        setTimeout(() => {
-          router.push("/");
-        }, 2000);
-      }
-      if (response.status === 400) {
-        if (response.data.message === "AuthCode is incorrect") {
-          setErrorAuthCode("AuthCode is incorrect");
+    //Check all errors
+    if (
+      errorAuthCode === "" &&
+      errorEmail === "" &&
+      errorPassword === "" &&
+      errorConfirmPassword === "" &&
+      errorUserName === ""
+    ) {
+      try {
+        const data: registerFormType = registerForm;
+        const response = await registerUser(data);
+        if (response.status === 200) {
+          saveItem("token", response.data.token);
+          setIsLoggedIn(true);
+          setUserData(response.data.user);
+          setRegisterCorrectly(true);
+          setTimeout(() => {
+            router.push("/");
+          }, 2000);
         }
-        if (response.data.message === "User already exists") {
-          setErrorEmail("Use other email, this email is already used");
+        if (response.status === 400) {
+          if (response.data.message === "AuthCode is incorrect") {
+            setErrorAuthCode("AuthCode is incorrect");
+          }
+          if (response.data.message === "User already exists (email)") {
+            setErrorEmail("Use other email, this email is already used");
+          }
+          if (response.data.message === "User already exists (username)") {
+            setErrorUserName("Use other username, this username is already used");
+          }
         }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
     }
   };
 
   useEffect(() => {
     if (!intentToSendForm) return;
-    if (registerForm.userName.length === 0) {
-      setErrorUserName("User name is required");
-    } else {
-      setErrorUserName("");
-    }
 
     if (registerForm.userName.length > 0 && registerForm.userName.length < 5) {
       setErrorUserName("User name must be at least 5 characters");
@@ -107,8 +114,9 @@ const Register: NextPage = () => {
       setErrorPassword("");
     }
 
-    if (registerForm.passwordConfirmation.length === 0) {
-      setErrorConfirmPassword("Password confirmation is required");
+
+    if (registerForm.passwordConfirmation.length > 0 && registerForm.passwordConfirmation.length < 8) {
+      setErrorConfirmPassword("Password must be at least 8 characters");
     } else {
       setErrorConfirmPassword("");
     }
