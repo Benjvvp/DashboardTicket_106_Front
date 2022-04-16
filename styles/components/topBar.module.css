@@ -1,0 +1,45 @@
+.inputSearch{
+      font-size: 14px;
+      width: 350px;
+      height: 50px;
+      padding-left: calc(15px + 2em);
+      padding-right: 3em;
+}
+.inputSearch::placeholder{
+      font-weight: bold;
+      color: #C6CBD9;
+}
+.searchIcon{
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+}
+.dropDownColor{
+      background-color: #7364DB;
+      border-radius: 16px;
+      padding: 10px;
+      position: absolute;
+      right: -45%;
+      width: 14em;
+      height: auto;
+      box-shadow: 0px 40px 120px rgba(0, 0, 0, 0.12);
+      z-index: 1;
+      padding: 1em 0 2em 2em;
+      margin-top: 5.4vh;
+      z-index: 9;
+}
+.caret::after{
+      content: "";
+      position: absolute;
+      top: -.3em;
+      left: 20%;
+      transform: rotate(180deg);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid #7364DB;
+}
