@@ -41,7 +41,7 @@
   background-color: #E23738;
   border-radius: 0 0 8px 8px;
   color: #fff;
-  font-size: 14px;
+  font-size: auto;
   font-weight: 500;
   padding: 15px;
   z-index: 1;
@@ -49,4 +49,9 @@
 }
 .errorContainer.active{
   display: flex;
+}
+@media (max-width: 320px){
+  .errorContainer{
+    font-size: 12px;
+  }
 }
