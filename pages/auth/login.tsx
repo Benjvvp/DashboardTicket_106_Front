@@ -194,7 +194,7 @@ const Login: NextPage = () => {
                   <div className="pt-10">
                     <p className="text-center text-[14px] text-[#07070C]">
                     Don’t have an account?{" "}
-                      <Link href="/auth/login">
+                      <Link href="/auth/register">
                         <a className="text-[#7364DB] hover:text-[#B2A7FF]">
                          Sign up
                         </a>
