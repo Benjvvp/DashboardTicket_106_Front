@@ -89,6 +89,12 @@ const Register: NextPage = () => {
       setErrorEmail("");
     }
 
+    if(registerForm.email.split('').includes('@') === false) {
+      setErrorEmail("Email is not valid");
+    } else {
+      setErrorEmail("");
+    }
+
     if (registerForm.password.length === 0) {
       setErrorPassword("Password is required");
     } else {
