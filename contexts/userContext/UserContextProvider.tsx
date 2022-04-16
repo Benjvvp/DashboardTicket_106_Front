@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { getItem } from '../../helpers/localStorage';
 import { UserContext } from '../../contexts/userContext/UserContext';
 import { loginWithToken } from '../../helpers/serverRequests/authUser';
+import { useRouter } from 'next/router';
 
 export default function UserContextProvider({children}: any){
+      const router = useRouter();
       const [isLoggedIn, setIsLoggedIn] = useState(false);
 
       const [userData, setUserData] = useState({
@@ -29,6 +31,10 @@ export default function UserContextProvider({children}: any){
                   if(response.status === 200) {
                         setIsLoggedIn(true);
                         setUserData({...response.data});
+                  }
+                  if(response.status === 500){
+                        setIsLoggedIn(false);
+                        router.push('/auth/login');
                   }
             } catch (error) {
                   setIsLoggedIn(false);

@@ -10,15 +10,11 @@ interface propsInputText {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
   required?: boolean;
+  className?: string;
 }
 
 export function InputDefault(
   props: propsInputText,
-  {
-    className,
-  }: {
-    className?: string;
-  }
 ) {
   const [inputPasswordType, setInputPasswordType] = useState("password");
 
@@ -30,7 +26,7 @@ export function InputDefault(
 
   return (
     <div
-      className={`${styles.containerInput} ${className} ${
+      className={`${styles.containerInput} ${props.className} ${
         props.error ? "mb-10" : ""
       }`}
     >
@@ -38,7 +34,7 @@ export function InputDefault(
         type={props.type === "password" ? `${inputPasswordType}` : props.type}
         name={props.name}
         id={props.id}
-        className={`${styles.inputText} focus:outline focus:outline-1 focus:outline-[#B2A7FF]`}
+        className={`${styles.inputText} focus:outline focus:outline-1 focus:outline-[#B2A7FF] dark:bg-transparent dark:text-white dark:placeholder-[#2C2C35] dark:border-t-[1px] dark:border-[#313442]`}
         placeholder={props.placeholder}
         onChange={props.onChange}
         required={props.required}

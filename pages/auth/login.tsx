@@ -90,25 +90,25 @@ const Login: NextPage = () => {
   }, [loginForm, intentToSendForm]);
 
   return (
-    <div className="bg-[#E8EDF2] h-full min-h-screen">
+    <div className="bg-[#E8EDF2] h-full min-h-screen dark:bg-[#313442]">
       <Head>
         <title>Login - Project Demo</title>
         <meta name="description" content="Login project" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <TopBar onlyLogo />
+      <TopBar onlyLogo showActionButton />
       <div className="h-full py-10 flex items-center justify-center">
-        <div className="max-w-md w-full space-y-2 border border-[#E8EDF2] rounded-2xl bg-[#ffffff] py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-2 border border-[#E8EDF2] rounded-2xl bg-[#ffffff] dark:bg-[#1F2128] dark:border-[#313442] py-12 px-4 sm:px-6 lg:px-8">
           <div>
             <img
               className="mx-auto h-12 w-auto"
               src="/svg/LandingSuccess1.svg"
               alt="Icon"
             />
-            <h2 className="text-center text-[24px] font-bold text-[#07070C]">
+            <h2 className="text-center text-[24px] font-bold text-[#07070C] dark:text-white">
               Welcome Back!
             </h2>
-            <p className="mt-2 text-center text-sm text-[#7E7E8F]">
+            <p className="mt-2 text-center text-sm text-[#7E7E8F] dark:text-[#8B8B93]">
               Let’s build something great
             </p>
             <p
@@ -127,12 +127,12 @@ const Login: NextPage = () => {
           <div className="mt-2 md:mt-0 md:col-span-2">
             <form onSubmit={handleSubmit}>
               <div className="overflow-hidden sm:rounded-md">
-                <div className="px-4 bg-white sm:p-2">
+                <div className="px-4 bg-white dark:bg-transparent sm:p-2">
                   <div className="grid grid-cols-1 gap-6">
                     <div className="col-span-1 sm:col-span-3">
                       <label
                         htmlFor="emailInput"
-                        className="block text-sm text-[#07070C]"
+                        className="block text-sm text-[#07070C] dark:text-white"
                       >
                         E-mail
                       </label>
@@ -157,7 +157,7 @@ const Login: NextPage = () => {
                     <div className="col-span-1 sm:col-span-3">
                       <label
                         htmlFor="passwordInput"
-                        className="block text-sm text-[#07070C]"
+                        className="block text-sm text-[#07070C] dark:text-white"
                       >
                         Password
                       </label>
@@ -190,17 +190,17 @@ const Login: NextPage = () => {
                   </div>
                   <div className="pt-5 w-full">
                     <a
-                      className="text-sm text-[#B2A7FF] block text-right"
+                      className="text-sm text-[#B2A7FF] block text-right dark:text-[#8083A3]"
                       href="#"
                     >
                       Forgot password?
                     </a>
                   </div>
                   <div className="pt-10">
-                    <p className="text-center text-[14px] text-[#07070C]">
+                    <p className="text-center text-[14px] text-[#07070C] dark:text-[#656575]">
                       Don’t have an account?{" "}
                       <Link href="/auth/register">
-                        <a className="text-[#7364DB] hover:text-[#B2A7FF]">
+                        <a className="text-[#7364DB] hover:text-[#B2A7FF] dark:text-[#7364DB]">
                           Sign up
                         </a>
                       </Link>

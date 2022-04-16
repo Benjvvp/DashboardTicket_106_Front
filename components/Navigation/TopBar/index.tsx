@@ -1,49 +1,50 @@
 import Image from "next/image";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { UserContext } from "../../../contexts/userContext/UserContext";
 import styles from "../../../styles/components/topBar.module.css";
+import ActionsButtons from "../../ActionsButtons";
 import LogoDark from "../../LogoDark";
 
 interface TopBarProps {
   onlyLogo?: boolean;
+  showActionButton?: boolean;
 }
 export default function TopBar(props: TopBarProps) {
+  const { userData } = useContext(UserContext);
+
   const [searchInput, setSearchInput] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
   const [browseDropDownActive, setBrowseDropDownActive] = useState(false);
   const browseDropDownItems = [
     {
-      name: "All brands",
+      name: "Todo-list",
       href: "/",
     },
     {
-      name: "News Reviews",
+      name: "News",
       href: "/",
     },
     {
-      name: "Financial report",
+      name: "Files",
       href: "/",
     },
     {
-      name: "Shipping",
+      name: "Chat",
       href: "/",
     },
     {
-      name: "View Catalog",
+      name: "Discord bot",
       href: "/",
     },
     {
-      name: "Revenue report",
-      href: "/",
-    },
-    {
-      name: "Refund requests",
+      name: "Admin panel",
       href: "/",
     },
   ];
   return (
     <>
-      <div className="bg-white h-[100px]">
+      <div className="bg-white h-[100px] dark:bg-[#1F2128] w-full">
         <div className="flex items-center h-[100px] px-5">
           <LogoDark withText />
           {!props.onlyLogo && (
@@ -58,7 +59,7 @@ export default function TopBar(props: TopBarProps) {
                   name="searchFiles"
                   id=""
                   placeholder="Search"
-                  className={`bg-[#F5F5FA] py-2 rounded-[12px] text-[#C6CBD9] focus:outline-none focus:shadow-outline ${styles.inputSearch}`}
+                  className={`bg-[#F5F5FA] dark:bg-[#0F0F12] py-2 rounded-[12px] text-[#C6CBD9] focus:outline-none focus:shadow-outline ${styles.inputSearch} dark:placeholder-[#2C2C35]`}
                 />
               </div>
               <div className="relative">
@@ -93,6 +94,9 @@ export default function TopBar(props: TopBarProps) {
               </div>
             </>
           )}
+          <div className="ml-auto">
+            {props.showActionButton && <ActionsButtons />}
+          </div>
         </div>
       </div>
     </>

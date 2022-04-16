@@ -3,8 +3,8 @@ export const saveItem = (key: string, data: any) => {
 };
 
 export const getItem = async (key: string) => {
-  const item = (await localStorage.getItem(key)) as string;
-  return JSON.parse(item);
+  const item = localStorage.getItem(key) as string;
+  return item;
 };
 
 export const deleteItem = (key: string) => {
