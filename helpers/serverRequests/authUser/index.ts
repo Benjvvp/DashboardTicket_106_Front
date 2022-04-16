@@ -29,6 +29,9 @@ export const loginWithToken = async (token: string) => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      data: {
+        token,
+      }
     });
     return response;
   } catch (err: any) {
