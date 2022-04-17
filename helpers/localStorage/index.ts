@@ -16,12 +16,16 @@ export const clearLocalStorage = () => {
 };
 
 export const themeTo = (theme: string) => {
-      if(theme !== 'light' && theme !== 'dark'){
-            throw new Error('Theme must be either light or dark');
-      }
-      if(localStorage.getItem('theme') === null) {
-            localStorage.setItem('theme', theme);
-      } else {
-            localStorage.theme = theme;
-      }
-}
+  if (theme !== "light" && theme !== "dark") {
+    throw new Error("Theme must be either light or dark");
+  }
+  if (localStorage.getItem("theme") === null) {
+    localStorage.setItem("theme", theme);
+  } else {
+    localStorage.theme = theme;
+  }
+};
+
+export const logoutUser = () => {
+  localStorage.clear();
+};

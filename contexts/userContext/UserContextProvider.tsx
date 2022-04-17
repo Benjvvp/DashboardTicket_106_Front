@@ -20,9 +20,9 @@ export default function UserContextProvider({children}: any){
 
       const initializeApp = async () => {
             try {
-                  const token = await getItem('token');
-
-                  if(!token) {
+                  let token = await JSON.parse(await getItem('token'));
+                  if(!token || token === null){
+                        router.push('/auth/login');
                         setIsLoggedIn(false);
                         return;
                   }
@@ -30,7 +30,8 @@ export default function UserContextProvider({children}: any){
                   const response = await loginWithToken(token);
                   if(response.status === 200) {
                         setIsLoggedIn(true);
-                        setUserData({...response.data});
+                        setUserData({...response.data.user});
+                        router.push('/');
                   }
                   if(response.status === 500){
                         setIsLoggedIn(false);
