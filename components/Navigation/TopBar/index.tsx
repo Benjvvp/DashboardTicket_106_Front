@@ -54,7 +54,7 @@ export default function TopBar(props: TopBarProps) {
 
   return (
     <>
-      <div className="bg-white h-[100px] dark:bg-[#1F2128] w-full">
+      <div className={`bg-white h-[100px] dark:bg-[#1F2128] w-full sticky top-0 left-0 z-50 ${styles.TopBar}`}>
         <div className="flex items-center h-[100px] px-5">
           <LogoDark withText />
           {!props.onlyLogo && (

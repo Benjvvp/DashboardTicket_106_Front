@@ -10,6 +10,7 @@ import { saveItem } from "../../helpers/localStorage";
 import { UserContext } from "../../contexts/userContext/UserContext";
 import { redirect } from "next/dist/server/api-utils";
 import { useRouter } from "next/router";
+import DefaultSEO from "../../components/SEO";
 
 const Register: NextPage = () => {
   const router = useRouter();
@@ -142,6 +143,7 @@ const Register: NextPage = () => {
         <title>Register - Project Demo</title>
         <meta name="description" content="Login project" />
         <link rel="icon" href="/favicon.ico" />
+        <DefaultSEO />
       </Head>
       <TopBar onlyLogo showActionButton />
       <div className="h-full py-10 flex items-center justify-center">
