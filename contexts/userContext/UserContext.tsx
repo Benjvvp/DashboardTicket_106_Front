@@ -2,6 +2,7 @@ import { createContext } from "react";
 
 type UserContextType = {
       userData: {
+          _id: string;
           userName: string,
           email: string,
           password: string,

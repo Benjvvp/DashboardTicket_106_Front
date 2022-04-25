@@ -6,7 +6,7 @@ import { InputDefault } from "../../components/Inputs";
 import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
 import { registerUser } from "../../helpers/serverRequests/authUser";
-import { saveItem } from "../../helpers/localStorage";
+import { getItem, saveItem } from "../../helpers/localStorage";
 import { UserContext } from "../../contexts/userContext/UserContext";
 import { redirect } from "next/dist/server/api-utils";
 import { useRouter } from "next/router";
@@ -58,6 +58,7 @@ const Register: NextPage = () => {
         const response = await registerUser(data);
         if (response.status === 200) {
           saveItem("token", response.data.token);
+          console.log(await getItem("token"))
           setIsLoggedIn(true);
           setUserData(response.data.user);
           setRegisterCorrectly(true);

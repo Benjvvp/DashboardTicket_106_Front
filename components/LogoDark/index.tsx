@@ -1,10 +1,9 @@
-export default function LogoDark(props: { withText?: boolean }) {
-  const { withText } = props;
+export default function LogoDark() {
   return (
     <img
-      src={withText ? "/svg/LogoDark.svg" : "/svg/LogoDarkWithoutText.svg"}
-      width={withText ? "150" : "50"}
-      height={withText ? "50" : "25"}
+      src="/icon.png"
+      width={150}
+      height={150}
       className="mr-[5%]"
       alt=""
     />

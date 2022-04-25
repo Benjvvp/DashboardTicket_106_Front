@@ -9,6 +9,7 @@ export default function UserContextProvider({children}: any){
       const [isLoggedIn, setIsLoggedIn] = useState(false);
 
       const [userData, setUserData] = useState({
+            _id: '',
             userName: '',
             email: '',
             password: '',
@@ -31,7 +32,6 @@ export default function UserContextProvider({children}: any){
                   if(response.status === 200) {
                         setIsLoggedIn(true);
                         setUserData({...response.data.user});
-                        router.push('/');
                   }
                   if(response.status === 500){
                         setIsLoggedIn(false);

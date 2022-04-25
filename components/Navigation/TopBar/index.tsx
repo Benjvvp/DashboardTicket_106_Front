@@ -1,7 +1,7 @@
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
-import {  useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { useContext, useState } from "react";
 import { UserContext } from "../../../contexts/userContext/UserContext";
 import { logoutUser } from "../../../helpers/localStorage";
@@ -14,7 +14,7 @@ interface TopBarProps {
   showActionButton?: boolean;
 }
 export default function TopBar(props: TopBarProps) {
-  const {theme} = useTheme();
+  const { theme } = useTheme();
 
   const router = useRouter();
   const { userData } = useContext(UserContext);
@@ -54,9 +54,11 @@ export default function TopBar(props: TopBarProps) {
 
   return (
     <>
-      <div className={`bg-white h-[100px] dark:bg-[#1F2128] w-full sticky top-0 left-0 z-50 ${styles.TopBar}`}>
+      <div
+        className={`bg-white h-[100px] dark:bg-[#1F2128] w-full sticky top-0 left-0 z-50 ${styles.TopBar}`}
+      >
         <div className="flex items-center h-[100px] px-5">
-          <LogoDark withText />
+          <LogoDark />
           {!props.onlyLogo && (
             <>
               <div className="flex items-center relative h-full flex-initial">
@@ -76,8 +78,8 @@ export default function TopBar(props: TopBarProps) {
                 <div
                   className="flex items-center h-full flex-initial ml-[5em] hover:cursor-pointer relative browseDropDown"
                   onClick={() => {
-                    if(menuUserOptionsActive) setMenuUserOptionsActive(false);
-                    setBrowseDropDownActive(!browseDropDownActive)
+                    if (menuUserOptionsActive) setMenuUserOptionsActive(false);
+                    setBrowseDropDownActive(!browseDropDownActive);
                   }}
                 >
                   <img src="/svg/export.svg" alt="" />
@@ -90,6 +92,7 @@ export default function TopBar(props: TopBarProps) {
                   className={`${styles.dropDownColor} ${
                     browseDropDownActive ? "block" : "hidden"
                   }`}
+                  onMouseLeave={() => setBrowseDropDownActive(false)}
                 >
                   <div className="flex flex-col gap-5 pl-5">
                     <div className={`${styles.caret}`}></div>
@@ -119,10 +122,9 @@ export default function TopBar(props: TopBarProps) {
                   <div
                     className="flex items-center justify-center bg-gradient-to-r from-[#5C8FFF] to-[#C14BFF] w-[48px] h-[48px] rounded-full cursor-pointer"
                     onClick={() => {
-                      if(browseDropDownActive) setBrowseDropDownActive(false);
-                      setMenuUserOptionsActive(!menuUserOptionsActive)
-                    }
-                    }
+                      if (browseDropDownActive) setBrowseDropDownActive(false);
+                      setMenuUserOptionsActive(!menuUserOptionsActive);
+                    }}
                   >
                     {userData.avatar === undefined || null ? (
                       <p className="font-bold text-[16px] text-white">
@@ -143,6 +145,7 @@ export default function TopBar(props: TopBarProps) {
                     className={`${styles.dropdownUserOptions} ${
                       menuUserOptionsActive ? "block" : "hidden"
                     } dark:bg-[#1F2128]`}
+                    onMouseLeave={() => setMenuUserOptionsActive(false)}
                   >
                     <div className="inline-flex flex-col">
                       <div
@@ -151,7 +154,14 @@ export default function TopBar(props: TopBarProps) {
                       {browseDropDownItems.map((item) => (
                         <Link href={item.href} key={item.name}>
                           <a className="inline-flex flex-row text-[14px] text-[#7E7E8F] dark:text-[#8B8B93] hover:bg-[#F5F5FA] hover:text-[#07070C] dark:hover:bg-[#0F0F12] dark:hover:text-[#fff] py-3 px-5 rounded-[8px] ">
-                            <img src={theme === 'light' ? '/svg/verifyLight.svg' : '/svg/verify.svg'} className="pr-5" />{" "}
+                            <img
+                              src={
+                                theme === "light"
+                                  ? "/svg/verifyLight.svg"
+                                  : "/svg/verify.svg"
+                              }
+                              className="pr-5"
+                            />{" "}
                             {item.name}
                           </a>
                         </Link>
@@ -160,11 +170,19 @@ export default function TopBar(props: TopBarProps) {
                       <a
                         className="inline-flex flex-row text-[14px] text-[#7E7E8F] dark:text-[#8B8B93] hover:bg-[#F5F5FA] hover:text-[#07070C] dark:hover:bg-[#0F0F12] dark:hover:text-[#fff] py-3 px-5 rounded-[8px] cursor-pointer"
                         onClick={() => {
-                          router.push('/auth/login');
-                          logoutUser()
+                          router.push("/auth/login");
+                          logoutUser();
                         }}
                       >
-                        <img src={theme === 'light' ? '/svg/logoutLight.svg' : '/svg/logout.svg'} className="pr-5" /> Logout
+                        <img
+                          src={
+                            theme === "light"
+                              ? "/svg/logoutLight.svg"
+                              : "/svg/logout.svg"
+                          }
+                          className="pr-5"
+                        />{" "}
+                        Logout
                       </a>
                     </div>
                   </div>
