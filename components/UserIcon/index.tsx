@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect } from "react";
 
 interface propsUserIcon {
   userName: string;
@@ -11,7 +11,7 @@ function UserIcon(props: propsUserIcon) {
   return (
     <>
       {avatar === undefined || null ? (
-        <div className={`flex items-center justify-center bg-gradient-to-r from-[#5C8FFF] to-[#C14BFF] w-[30px] h-[30px] rounded-full ${isListMembers ? "border-white dark:border-[#1F2128] border-[1.4px]" : ""}`}>
+        <div className={`flex items-center justify-center bg-gradient-to-r from-[#5C8FFF] to-[#C14BFF] w-[30px] h-[30px] rounded-full ${isListMembers ? "border-[#F5F5FA] dark:border-[#0F0F12] border-[1.4px]" : ""}`}>
           <p className="font-bold text-[12px] text-white">
             {userName.split("")[0] +
               userName.split("")[1]}
@@ -20,10 +20,8 @@ function UserIcon(props: propsUserIcon) {
       ) : (
         <img
           src={avatar}
-          width={30}
-          height={30}
           alt="avatar"
-          className={`rounded-full ${isListMembers ? "border-white dark:border-[#1F2128] border-[1.4px]" : ""}`}
+          className={`rounded-full w-100 max-w-[30px] ${isListMembers ? "border-[#F5F5FA] dark:border-[#0F0F12] border-[1.4px]" : ""}`}
         />
       )}
     </>

@@ -17,20 +17,24 @@ import ProjectStatics from "../components/ProjectStatics";
 import { InputDefault } from "../components/Inputs";
 import TaskFormModal from "../components/TaskFormModal";
 import TaskLargeListCards from "../components/TaskLargeListCards";
+import TaskAddUserModal from "../components/TaskAddUserModal";
 
 const Home: NextPage = () => {
   const router = useRouter();
   const [modalAddTask, setModalAddTask] = useState(false);
   const [isModalActive, setIsModalActive] = useState(false);
   const [modalFormTask, setModalFormTask] = useState(false);
+  const [modalAddUser, setModalAddUser] = useState(false);
+  const [idTask, setIdTask] = useState("");
 
   const checkToken = async () => {
     const token = await getItem("token");
-    if (!token || token === undefined || token === 'undefined') router.push("/auth/login");
-  }
+    if (!token || token === undefined || token === "undefined")
+      router.push("/auth/login");
+  };
   useEffect(() => {
     checkToken();
-  })
+  }, [idTask, modalAddUser, modalFormTask, modalAddTask]);
   return (
     <div className="bg-[#E8EDF2] h-full min-h-screen dark:bg-[#0F0F12]">
       <Head>
@@ -54,27 +58,51 @@ const Home: NextPage = () => {
         <div className="grid grid-cols-3 gap-5 mt-10 mb-[5em]">
           <TaskListCards
             name="Pending"
-            countShow={4}
+            countShow={3}
             typeOfTaskDisplay="Pending"
+            clickHandlerTaskAdd={() => {
+              setModalAddTask(true);
+              setIsModalActive(true);
+            }}
+            clickHandlerUserAdd={() => {
+              setModalAddUser(true);
+              setIsModalActive(true);
+            }}
+            setIdTask={setIdTask}
           />
           <TaskListCards
             name="In Progress"
-            countShow={4}
+            countShow={3}
             typeOfTaskDisplay="In Progress"
+            clickHandlerTaskAdd={() => {
+              setModalAddTask(true);
+              setIsModalActive(true);
+            }}
+            clickHandlerUserAdd={() => {
+              setModalAddUser(true);
+              setIsModalActive(true);
+            }}
+            setIdTask={setIdTask}
           />
           <div className="flex flex-col">
             <TaskListCards
               name="Completed"
               countShow={2}
               typeOfTaskDisplay="Completed"
+              clickHandlerTaskAdd={() => {
+                setModalAddTask(true);
+                setIsModalActive(true);
+              }}
+              clickHandlerUserAdd={() => {
+                setModalAddUser(true);
+                setIsModalActive(true);
+              }}
+              setIdTask={setIdTask}
             />
             <ProjectStatics />
           </div>
         </div>
-        <TaskLargeListCards
-          name="All projects"
-          countShow={5}
-        />
+        <TaskLargeListCards name="All projects" countShow={5} />
         <Footer />
       </div>
 
@@ -104,9 +132,9 @@ const Home: NextPage = () => {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    fill-rule="evenodd"
+                    fillRule="evenodd"
                     d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
+                    clipRule="evenodd"
                   ></path>
                 </svg>
               </button>
@@ -147,12 +175,19 @@ const Home: NextPage = () => {
         </div>
       </div>
 
-      <TaskFormModal 
+      <TaskFormModal
         modalFormTask={modalFormTask}
         setModalFormTask={setModalFormTask}
         setIsModalActive={setIsModalActive}
       />
-      
+      <TaskAddUserModal
+        modalAddUser={modalAddUser}
+        setModalAddUser={setModalAddUser}
+        setIsModalActive={setIsModalActive}
+        idTask={idTask}
+        setIdTask={setIdTask}
+      />
+
       <div
         className={`top-0 left-0 fixed w-full h-full bg-[#07070C] opacity-[.6] z-[55] ${
           isModalActive ? "block" : "hidden"

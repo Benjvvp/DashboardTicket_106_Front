@@ -12,6 +12,7 @@ interface propsInputText {
   required?: boolean;
   className?: string;
   classNameInput?: string;
+  value?: string;
 }
 interface propsTextAreaInput {
   name?: string;
@@ -26,6 +27,7 @@ interface propsTextAreaInput {
   height?: string;
   rows: number;
   cols: number;
+  value?: string;
 }
 interface propsDropDownInput {
   text: string;
@@ -37,6 +39,7 @@ interface propsDropDownInput {
   classNameInput?: string;
   height?: string;
   list: string[];
+  disabled?: boolean;
 }
 export function InputDefault(props: propsInputText) {
   const [inputPasswordType, setInputPasswordType] = useState("password");
@@ -61,6 +64,7 @@ export function InputDefault(props: propsInputText) {
         placeholder={props.placeholder}
         onChange={props.onChange}
         required={props.required}
+        value={props.value}
       />
       {props.iconPath && (
         <img
@@ -102,6 +106,7 @@ export function TextAreaInput(props: propsTextAreaInput) {
         required={props.required}
         cols={props.rows}
         rows={props.cols}
+        value={props.value}
       />
       {props.iconPath && (
         <img src={props.iconPath} alt="" className={`${styles.icon}`} />
@@ -125,8 +130,9 @@ export function DropDownInput(props: propsDropDownInput) {
       <button
         name={props.name}
         id={props.id}
-        className={`${styles.inputText} max-h-[50px] focus:outline focus:outline-1 focus:outline-[#B2A7FF] dark:bg-transparent dark:text-white dark:placeholder-[#2C2C35] dark:border-t-[1px] dark:border-[#313442] ${props.classNameInput}`}
+        className={`${styles.inputText} max-h-[50px] focus:outline focus:outline-1 focus:outline-[#B2A7FF] dark:bg-transparent dark:text-white dark:placeholder-[#2C2C35] dark:border-t-[1px] dark:border-[#313442] ${props.classNameInput} ${props.disabled ? 'cursor-not-allowed' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
+        disabled={props.disabled}
       >
         {props.text}
       </button>

@@ -28,6 +28,10 @@ export default function TaskFormModal(props: propsTaskFormModal) {
   const handleClick = async (e: any) => {
     setIntentToCreateTask(true);
     e.preventDefault();
+    if(
+      createTaskValues.title.length < 5 ||
+      createTaskValues.description.length < 5
+    ) return;
     //Check all errors
     if (projectNameError === "" && projectDescriptionError === "") {
       try {
@@ -106,6 +110,14 @@ export default function TaskFormModal(props: propsTaskFormModal) {
                 setIntentToCreateTask(false);
                 setProjectNameError("");
                 setprojectDescriptionError("");
+                setCreateTaskValues({
+                  author: "",
+                  title: "",
+                  description: "",
+                  category: "Other",
+                  priority: "Low",
+                });
+                  
               }}
             >
               <svg
@@ -115,9 +127,9 @@ export default function TaskFormModal(props: propsTaskFormModal) {
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                   d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
+                  clipRule="evenodd"
                 ></path>
               </svg>
             </button>
@@ -154,6 +166,7 @@ export default function TaskFormModal(props: propsTaskFormModal) {
                 }
                 error={projectNameError}
                 classNameInput="dark:placeholder-[#64646F]"
+                value={createTaskValues.title}
               />
             </div>
             <div className="h-full">
@@ -176,6 +189,7 @@ export default function TaskFormModal(props: propsTaskFormModal) {
                 classNameInput="dark:placeholder-[#64646F]"
                 rows={10}
                 cols={5}
+                value={createTaskValues.description}
               />
             </div>
             <div className="h-full">

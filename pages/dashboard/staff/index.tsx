@@ -2,23 +2,94 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
+import LargeUserCard from "../../../components/LargeUserCard";
 import TopBar from "../../../components/Navigation/TopBar";
 import PageTitle from "../../../components/PageTitle";
 import DefaultSEO from "../../../components/SEO";
-import { getItem } from "../../../helpers/localStorage";
+import { UserContext } from "../../../contexts/userContext/UserContext";
+import { getItem, logoutUser } from "../../../helpers/localStorage";
+import { deleteTaskByUser, deleteUser, getAllUsers } from "../../../helpers/serverRequests/user";
 
 const Staff: NextPage = () => {
   const router = useRouter();
+
+  const [generalStaffUsers, setGeneralStaffUsers] = useState([]);
+  const [adminUsers, setAdminUsers] = useState([]);
+
+  const [modalDeleteUser, setModalDeleteUser] = useState(false);
+  const [sucessDeleteUser, setSucessDeleteUser] = useState(false);
+  const [userIdToDelete, setUserIdToDelete] = useState("");
+
+  const {userData} = useContext(UserContext);
 
   const checkToken = async () => {
     const token = await getItem("token");
     if (!token || token === undefined || token === "undefined")
       router.push("/auth/login");
   };
+
+  const deleteUserFunction = async (id: string) => {
+    try {
+      const token = await JSON.parse(await getItem("token"));
+
+      const response_deleteTasksUsers = await deleteTaskByUser(token, id);
+      if (response_deleteTasksUsers.status === 200) {
+        setSucessDeleteUser(true);
+        setUserIdToDelete("");
+        await initializeGetUsers();
+      } else {
+        setSucessDeleteUser(false);
+        setUserIdToDelete("");
+        setModalDeleteUser(false);
+      }
+
+      const response = await deleteUser(token, id);
+      if (response.status === 200) {
+        setUserIdToDelete("");
+        await initializeGetUsers();
+      } else {
+        setSucessDeleteUser(false);
+        setUserIdToDelete("");
+        setModalDeleteUser(false);
+      }
+
+      if(id === userData._id){
+        logoutUser();
+        router.push("/auth/login");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const initializeGetUsers = async () => {
+    try {
+      const token = await JSON.parse(await getItem("token"));
+      const response = await getAllUsers(token);
+      if (response.status === 200) {
+        const { data } = response;
+        const generalStaffUsers = data.users.filter(
+          (user: any) => user.role === "General Staff"
+        );
+        const adminUsers = data.users.filter(
+          (user: any) => user.role === "Admin"
+        );
+        setGeneralStaffUsers(generalStaffUsers);
+        setAdminUsers(adminUsers);
+      } else {
+        setGeneralStaffUsers([]);
+        setAdminUsers([]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     checkToken();
-  });
+    initializeGetUsers();
+  }, [generalStaffUsers, adminUsers]);
   return (
     <div className="bg-[#E8EDF2] h-full min-h-screen dark:bg-[#0F0F12]">
       <Head>
@@ -44,7 +115,136 @@ const Staff: NextPage = () => {
             },
           ]}
         />
+        <div className="flex flex-col gap-5 mt-[5em] mb-[5em]">
+          <div className="flex flex-col w-full h-full py-2 px-5 bg-white rounded-xl border-[1px] border-[#E8EDF2] dark:bg-[#1F2128] dark:border-[#313442] mb-5">
+            <div className="flex flex-row justify-between items-center pb-2 border-b-[1px] border-[#E8EDF2] dark:border-[#313442]">
+              <h4 className="font-semibold text-[16px] text-[#07070C] dark:text-white mt-2">
+                Admin
+              </h4>
+            </div>
+            <div className="flex flex-col w-full h-full pb-3">
+              {adminUsers.map((user: any) => (
+                <LargeUserCard
+                  key={user._id}
+                  avatar={user.avatar}
+                  userName={user.userName}
+                  email={user.email}
+                  role={user.role}
+                  _id={user._id}
+                  createdAt={user.createdAt}
+                  setModalDeleteUser={setModalDeleteUser}
+                  setUserIdToDelete={setUserIdToDelete}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col gap-5 mt-[5em] mb-[5em]">
+          <div className="flex flex-col w-full h-full py-2 px-5 bg-white rounded-xl border-[1px] border-[#E8EDF2] dark:bg-[#1F2128] dark:border-[#313442] mb-5">
+            <div className="flex flex-row justify-between items-center pb-2 border-b-[1px] border-[#E8EDF2] dark:border-[#313442]">
+              <h4 className="font-semibold text-[16px] text-[#07070C] dark:text-white mt-2">
+                General Staff
+              </h4>
+            </div>
+            <div className="flex flex-col w-full h-full pb-3">
+              {generalStaffUsers.map((user: any) => (
+                <LargeUserCard
+                  key={user._id}
+                  avatar={user.avatar}
+                  userName={user.userName}
+                  email={user.email}
+                  role={user.role}
+                  _id={user._id}
+                  createdAt={user.createdAt}
+                  setModalDeleteUser={setModalDeleteUser}
+                  setUserIdToDelete={setUserIdToDelete}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
+
+      <div
+        id="modalDeleteUser"
+        tabIndex={-1}
+        aria-hidden="true"
+        className={`overflow-y-auto overflow-x-hidden fixed top-0 bottom-0 right-0 left-0 z-[60] w-full md:inset-0 h-modal md:h-full  flex items-center justify-center ${
+          modalDeleteUser ? "block" : "hidden"
+        }`}
+      >
+        <div className="relative p-4 w-full max-w-2xl h-full min-h-[20vh] md:h-auto">
+          <div className="relative bg-white rounded-lg shadow dark:bg-[#1F2128] border border-[#E8EDF2] dark:border-[#313442] min-h-[20vh]">
+            <div className="flex justify-between items-start p-5 rounded-t dark:border-gray-600">
+              <button
+                type="button"
+                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                onClick={() => {
+                  setModalDeleteUser(false);
+                  setSucessDeleteUser(false);
+                }}
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+            <h1 className="font-semibold text-[20px] text-[#07070C] text-center dark:text-white">
+              Delete User Account
+            </h1>
+            <div
+              className={`p-5 w-11/12 mx-auto rounded-xl mt-5 text-white bg-green-600 dark:bg-green-700 text-center ${
+                sucessDeleteUser ? "block" : "hidden"
+              }`}
+            >
+              <p>User successfully deleted</p>
+            </div>
+            <div className="p-6 space-y-6 mt-2 h-full">
+              <div className="flex flex-col gap-5 justify-between">
+                <h1 className="font-medium text-[14px] text-[#07070C] text-left dark:text-white">
+                  Are you sure you want to delete this user?
+                </h1>
+                <div className="flex flex-row justify-center items-center gap-5 mt-5">
+                  <button
+                    type="button"
+                    className="bg-[#E23738] text-white font-semibold py-2 px-4 rounded-lg text-sm dark:text-white"
+                    onClick={() => {
+                      deleteUserFunction(userIdToDelete);
+                    }}
+                  >
+                    Delete
+                  </button>
+                  <button
+                    type="button"
+                    className="bg-[#E8EDF2] text-[#B8B1E4] font-semibold py-2 px-4 rounded-lg text-sm dark:bg-[#313442]"
+                    onClick={() => {
+                      setModalDeleteUser(false);
+                      setSucessDeleteUser(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={`top-0 left-0 fixed w-full h-full bg-[#07070C] opacity-[.6] z-[55] ${
+          modalDeleteUser ? "block" : "hidden"
+        }`}
+      ></div>
     </div>
   );
 };

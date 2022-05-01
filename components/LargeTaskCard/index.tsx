@@ -89,7 +89,7 @@ export default function LargeTaskCard(props: LargeTaskCardProps) {
   useEffect(() => {
     getAuthorData();
     changeColorByStatus(status);
-    getAssignedUsers();
+    if(props.assignedUsers.length > 0) getAssignedUsers();
   }, []);
 
   return (
@@ -152,7 +152,7 @@ export default function LargeTaskCard(props: LargeTaskCardProps) {
                 .slice(0, 3)
                 .map((user: any) => (
                   <UserIcon
-                    key={user.id}
+                  key={`Large-${user.userName}`}
                     userName={user.userName}
                     avatar={user.avatar}
                     isListMembers
@@ -161,7 +161,7 @@ export default function LargeTaskCard(props: LargeTaskCardProps) {
             ) : (
               assignedUsers.map((user: any) => (
                 <UserIcon
-                  key={user.id}
+                  key={`Large-${user.userName}`}
                   userName={user.userName}
                   avatar={user.avatar}
                   isListMembers

@@ -57,7 +57,7 @@ export default function ProjectStatics() {
   };
 
   return (
-    <div className="flex flex-col w-full h-full py-2 px-5 bg-white rounded-xl border-[1px] border-[#E8EDF2] dark:bg-[#1F2128] dark:border-[#313442] mb-5">
+    <div className="flex flex-col w-full h-6/12 py-2 px-5 bg-white rounded-xl border-[1px] border-[#E8EDF2] dark:bg-[#1F2128] dark:border-[#313442]">
       <div className="flex flex-row justify-between items-center pb-2 border-b-[1px] border-[#E8EDF2] dark:border-[#313442]">
         <h4 className="font-semibold text-[16px] text-[#07070C] dark:text-white">
           Project Statics

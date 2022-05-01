@@ -120,7 +120,7 @@ export default function TopBar(props: TopBarProps) {
                 </div>
                 <div className="relative">
                   <div
-                    className="flex items-center justify-center bg-gradient-to-r from-[#5C8FFF] to-[#C14BFF] w-[48px] h-[48px] rounded-full cursor-pointer"
+                    className={`flex items-center justify-center w-[48px] h-[48px] rounded-full cursor-pointer ${userData.avatar === undefined || null ? 'bg-gradient-to-r from-[#5C8FFF] to-[#C14BFF]' : ''}`}
                     onClick={() => {
                       if (browseDropDownActive) setBrowseDropDownActive(false);
                       setMenuUserOptionsActive(!menuUserOptionsActive);
@@ -134,10 +134,8 @@ export default function TopBar(props: TopBarProps) {
                     ) : (
                       <img
                         src={userData.avatar}
-                        width={30}
-                        height={30}
                         alt="avatar"
-                        className="rounded-full"
+                        className="rounded-full w-[48px]"
                       />
                     )}
                   </div>

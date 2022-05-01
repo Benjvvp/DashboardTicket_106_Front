@@ -35,9 +35,11 @@ export default function TaskLargeListCards(props: TaskCardProps) {
       if (response.status === 200) {
         //Sort tasks by date
         const sortedTasks = response.data.tasks.sort(
-          (a:LargeTaskCardProps, b:LargeTaskCardProps) => {
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-          } 
+          (a: LargeTaskCardProps, b: LargeTaskCardProps) => {
+            return (
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+          }
         );
         setAllTasks(sortedTasks);
         setCountPage(Math.ceil(response.data.tasks.length / countShow));
@@ -62,13 +64,24 @@ export default function TaskLargeListCards(props: TaskCardProps) {
         </h4>
       </div>
       <div className="flex flex-col w-full h-full">
-        {allTasks.map((task: LargeTaskCardProps, index: number) => {
-          if (index >= (currentPage - 1) * countShow && index < currentPage * countShow) {
-            return <LargeTaskCard key={index} {...task} />;
-          }
-        })}
+        {allTasks.length === 0 ? (
+          <div className="flex flex-col w-full h-full justify-center mt-5">
+            <h4 className="text-left text-[16px] text-[#9A9AAF] dark:text-[#8A8A98]">
+              No tasks
+            </h4>
+          </div>
+        ) : (
+          allTasks.map((task: LargeTaskCardProps, index: number) => {
+            if (
+              index >= (currentPage - 1) * countShow &&
+              index < currentPage * countShow
+            ) {
+              return <LargeTaskCard key={`${index}-${task.author}`} {...task} />;
+            }
+          })
+        )}
       </div>
-      <Pagination 
+      <Pagination
         count={countPage}
         currentPage={1}
         buttonNext={true}
