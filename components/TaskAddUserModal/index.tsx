@@ -7,7 +7,11 @@ import {
   getTask,
   removeUserToTask,
 } from "../../helpers/serverRequests/tasks";
-import { getAllUsers, getUsers } from "../../helpers/serverRequests/user";
+import {
+  getAllUsers,
+  getUser,
+  getUsers,
+} from "../../helpers/serverRequests/user";
 import { DropDownInput, InputDefault, TextAreaInput } from "../Inputs";
 import UserIcon from "../UserIcon";
 
@@ -22,7 +26,12 @@ interface propsTaskAddUserModal {
 export default function TaskAddUserModal(props: propsTaskAddUserModal) {
   const { userData } = useContext(UserContext);
   const { modalAddUser, setModalAddUser, setIsModalActive } = props;
-  const [author, setAuthor] = useState("");
+  const [author, setAuthor] = useState({
+    _id: "",
+    userName: "",
+    email: "",
+    avatar: "",
+  });
 
   const [allUsers, setAllUsers] = useState([]);
   const [usersIdInTask, setUsersIdInTask] = useState([]);
@@ -33,7 +42,6 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
     const response = await getTask(token, props.idTask);
     if (response.status === 200) {
       setUsersIdInTask(response.data.task.assignedUsers);
-      setAuthor(response.data.task);
     } else {
       console.log(response.data);
     }
@@ -60,11 +68,15 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
   };
 
   const getUsersFromId = async () => {
-    if(usersIdInTask.length === 0) return;
+    if (usersIdInTask.length === 0) return;
     let token = await JSON.parse(await getItem("token"));
     const response = await getUsers(token, usersIdInTask);
     if (response.status === 200) {
-      setUsersInTask(response.data.users);
+      setUsersInTask(
+        response.data.users.filter(
+          (user: { userName: string }) => user.userName !== author.userName
+        )
+      );
     } else {
       console.log(response.data);
     }
@@ -74,7 +86,21 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
     let token = await JSON.parse(await getItem("token"));
     const response = await getAllUsers(token);
     if (response.status === 200) {
-      setAllUsers(response.data.users);
+      setAllUsers(
+        response.data.users.filter(
+          (user: { userName: string }) => user.userName !== author.userName
+        )
+      );
+    } else {
+      console.log(response.data);
+    }
+  };
+
+  const getAuthor = async () => {
+    let token = await JSON.parse(await getItem("token"));
+    const response = await getUser(token, userData._id);
+    if (response.status === 200) {
+      setAuthor(response.data.user);
     } else {
       console.log(response.data);
     }
@@ -82,6 +108,7 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
 
   useEffect(() => {
     if (props.idTask) {
+      getAuthor();
       getUsersFromId();
       getUsersIdFromTask();
       getAllUsersFromDB();
@@ -130,44 +157,57 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
             User Assignment
           </h1>
           <div className="p-5">
-            <h2 className="font-semibold text-[16px] text-[#07070C] text-left dark:text-white mb-[2.5em]">
+            <div className="flex flex-col justify-center items-start mb-4 border-b-[1px] pb-5 border-[#7E7E8F] dark:border-[#313442]">
+              <div className="flex items-center justify-start w-full">
+                <UserIcon userName={author.userName} avatar={author.avatar} />
+                <div className="ml-4">
+                  <p className="text-[#323338] dark:text-white">
+                    {author.userName}
+                  </p>
+                </div>
+                <p className="ml-auto py-2 px-4 border border-transparent text-[14px] rounded-md text-[#7E7E8F] dark:text-[#8B8B93]">
+                  Owner
+                </p>
+              </div>
+            </div>
+            <h2 className="font-semibold text-[16px] text-[#07070C] text-left dark:text-white mb-[2.5em] pt-5">
               Users in task
             </h2>
             {usersInTask.length > 0 ? (
-              usersInTask
-                .map((user: any, index: any) => {
-                  console.log(user);
-                  return (
-                    <div
-                      key={index}
-                      className="flex flex-col justify-center items-start mb-4"
-                    >
-                      <div className="flex items-center justify-start w-full">
+              usersInTask.map((user: any, index: any) => {
+                return (
+                  <div
+                    key={index}
+                    className="flex flex-col justify-center items-start mb-4"
+                  >
+                    <div className="flex items-center justify-start w-full">
+                      <div className="hidden md:block">
                         <UserIcon
                           userName={user.userName}
                           avatar={user.avatar}
                         />
-                        <div className="ml-4">
-                          <p className="text-gray-700 dark:text-[#F1F1F1]">
-                            {user.userName}
-                          </p>
-                          <p className="text-gray-500 dark:text-[#64646F]">
-                            {user.email}
-                          </p>
-                        </div>
-                        <button
-                          type="submit"
-                          className="ml-auto py-2 px-4 border border-transparent text-[14px] font-medium rounded-md text-white bg-[#D82325] transition transition-all"
-                          onClick={() => {
-                            removeUserFromTask(user._id);
-                          }}
-                        >
-                          Remove
-                        </button>
                       </div>
+                      <div className="md:ml-4">
+                        <p className="text-gray-700 dark:text-[#F1F1F1]">
+                          {user.userName}
+                        </p>
+                        <p className="text-gray-500 dark:text-[#64646F] text-[14px] md:text-sm">
+                          {user.email}
+                        </p>
+                      </div>
+                      <button
+                        type="submit"
+                        className="ml-auto py-2 px-1 md:px-4 border border-transparent text-[12px] md:text-[14px] font-medium rounded-md text-white bg-[#D82325] transition transition-all"
+                        onClick={() => {
+                          removeUserFromTask(user._id);
+                        }}
+                      >
+                        Remove
+                      </button>
                     </div>
-                  );
-                })
+                  </div>
+                );
+              })
             ) : (
               <p className="text-gray-700 dark:text-white">No users assigned</p>
             )}
@@ -190,21 +230,23 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
                       className="flex flex-col justify-center items-start mb-4"
                     >
                       <div className="flex items-center justify-start w-full">
-                        <UserIcon
-                          userName={user.userName}
-                          avatar={user.avatar}
-                        />
-                        <div className="ml-4">
+                        <div className="hidden md:block">
+                          <UserIcon
+                            userName={user.userName}
+                            avatar={user.avatar}
+                          />
+                        </div>
+                        <div className="md:ml-4">
                           <p className="text-gray-700 dark:text-[#F1F1F1]">
                             {user.userName}
                           </p>
-                          <p className="text-gray-500 dark:text-[#64646F]">
+                          <p className="text-gray-500 dark:text-[#64646F] text-[14px] md:text-sm">
                             {user.email}
                           </p>
                         </div>
                         <button
                           type="submit"
-                          className="ml-auto py-2 px-4 border border-transparent text-[14px] font-medium rounded-md text-white bg-[#7364DB] hover:bg-[#7364DB] transition transition-all"
+                          className="ml-auto py-2 px-2 md:px-4 border border-transparent text-[14px] font-medium rounded-md text-white bg-[#7364DB] hover:bg-[#7364DB] transition transition-all"
                           onClick={() => {
                             addUserFromTask(user._id);
                           }}

@@ -1,3 +1,12 @@
+.TopBar::after{
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 88%;
+      height: 1px;
+      border: 1px solid;
+}
 .inputSearch{
       font-size: 14px;
       width: 350px;

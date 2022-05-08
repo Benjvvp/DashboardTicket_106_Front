@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { clearLocalStorage } from "../../localStorage";
 
-const mainUrl = process.env.MAIN_URL || "http://localhost:80/api";
+const mainUrl = process.env.MAIN_URL || "http://localhost:3001/api";
 
 export const loginUser = async (data: { email: string; password: string }) => {
   try {

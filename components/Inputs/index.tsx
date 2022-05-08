@@ -41,6 +41,17 @@ interface propsDropDownInput {
   list: string[];
   disabled?: boolean;
 }
+interface propsRangeInput {
+  name?: string;
+  id?: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  value: number;
+  className?: string;
+  classNameInput?: string;
+  min: number;
+  max: number;
+  step: number;
+}
 export function InputDefault(props: propsInputText) {
   const [inputPasswordType, setInputPasswordType] = useState("password");
 
@@ -130,7 +141,11 @@ export function DropDownInput(props: propsDropDownInput) {
       <button
         name={props.name}
         id={props.id}
-        className={`${styles.inputText} max-h-[50px] focus:outline focus:outline-1 focus:outline-[#B2A7FF] dark:bg-transparent dark:text-white dark:placeholder-[#2C2C35] dark:border-t-[1px] dark:border-[#313442] ${props.classNameInput} ${props.disabled ? 'cursor-not-allowed' : ''}`}
+        className={`${
+          styles.inputText
+        } max-h-[50px] focus:outline focus:outline-1 focus:outline-[#B2A7FF] dark:bg-transparent dark:text-white dark:placeholder-[#2C2C35] dark:border-t-[1px] dark:border-[#313442] ${
+          props.classNameInput
+        } ${props.disabled ? "cursor-not-allowed" : ""}`}
         onClick={() => setIsOpen(!isOpen)}
         disabled={props.disabled}
       >
@@ -164,6 +179,14 @@ export function DropDownInput(props: propsDropDownInput) {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+export function RangeInput(props: propsRangeInput) {
+  return (
+    <div className="flex flex-col space-y-2 p-2 w-80">
+      <input type="range" className={`w-full ${styles.RangeInput}`} min={props.min} max={props.max} step={props.step} onChange={props.onChange} value={props.value} />
     </div>
   );
 }

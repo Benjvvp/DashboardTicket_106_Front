@@ -44,7 +44,7 @@ export default function LargeUserCard(props: LargeUserCardProps) {
           {email}
         </p>
       </div>
-      <div className="flex flex-row items-center w-full h-full gap-2">
+      <div className="hidden md:flex flex-row items-center w-full h-full gap-2">
         <img src="/svg/icocalendar.svg" alt="" srcSet="" />
         <p className="text-[14px] text-[#9A9AAF] dark:text-[#64646F]">
           {formatDate}
@@ -67,7 +67,7 @@ export default function LargeUserCard(props: LargeUserCardProps) {
           srcSet=""
           width={3}
           onClick={() => {
-            setDropDownOptions(true);
+            setDropDownOptions(!dropDownOptions);
           }}
         />
         <div
@@ -77,7 +77,7 @@ export default function LargeUserCard(props: LargeUserCardProps) {
           onMouseLeave={() => setDropDownOptions(false)}
         >
           <div className="inline-flex flex-col">
-            <Link href={`/dashboard/staff/edit/${props._id}`}>
+            <Link href={`/dashboard/staff/${props._id}`}>
               <a className="block mx-auto text-[14px] text-[#7E7E8F] dark:text-[#8B8B93] hover:bg-[#F5F5FA] hover:text-[#07070C] dark:hover:bg-[#0F0F12] dark:hover:text-[#fff] py-3 px-5 rounded-[8px] cursor-pointer">
                 Edit
               </a>

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getItem } from "../../helpers/localStorage";
-import { getTasks } from "../../helpers/serverRequests/tasks";
+import { deleteTask, getTasks } from "../../helpers/serverRequests/tasks";
 import SmallTaskCard from "../SmallTaskCard";
 
 interface TaskCardProps {
@@ -23,11 +23,20 @@ interface SmallTaskCardProps {
   status: string;
   description: string;
   assignedUsers: string[];
+
+  setModalDeleteTask: (value: boolean) => void;
+  setSuccessDeleteTask: (value: boolean) => void;
+  deleteTaskFunction: (value: string) => void;
+  successDeleteTask: boolean;
+  modalDeleteTask: boolean;
 }
 
 export default function TaskCard(props: TaskCardProps) {
   const { name, countShow, typeOfTaskDisplay } = props;
   const [taskList, setTaskList] = useState([]);
+
+  const [successDeleteTask, setSuccessDeleteTask] = useState(false);
+  const [modalDeleteTask, setModalDeleteTask] = useState(false);
 
   const initializeGetTasks = async () => {
     try {
@@ -49,9 +58,25 @@ export default function TaskCard(props: TaskCardProps) {
     }
   };
 
+  const deleteTaskFunction = async (taskId: string) => {
+    try {
+      let token = await JSON.parse(await getItem("token"));
+      const response = await deleteTask(token, taskId);
+      if (response.status === 200) {
+        setSuccessDeleteTask(true);
+      }
+      if (response.status === 500) {
+        setSuccessDeleteTask(false);
+        setModalDeleteTask(false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     initializeGetTasks();
-  }, [taskList]);
+  }, [taskList, successDeleteTask]);
 
   return (
     <div className="flex flex-col w-full h-full py-2 px-5 bg-white rounded-xl border-[1px] border-[#E8EDF2] dark:bg-[#1F2128] dark:border-[#313442] mb-5">
@@ -64,7 +89,11 @@ export default function TaskCard(props: TaskCardProps) {
         {taskList && taskList.length > 0 ? (
           taskList.map((task: SmallTaskCardProps, index: number) => {
             if (index < countShow) {
-              return <SmallTaskCard key={index} {...task} clickHandlerUserAdd={props.clickHandlerUserAdd} setIdTask={props.setIdTask} />;
+              return <SmallTaskCard key={index} {...task} clickHandlerUserAdd={props.clickHandlerUserAdd} setIdTask={props.setIdTask} deleteTaskFunction={deleteTaskFunction}
+              setModalDeleteTask={setModalDeleteTask}
+              setSuccessDeleteTask={setSuccessDeleteTask}
+              successDeleteTask={successDeleteTask}
+              modalDeleteTask={modalDeleteTask} />;
             }
           })
         ) : (
@@ -77,7 +106,7 @@ export default function TaskCard(props: TaskCardProps) {
       </div>
       <button
         type="button"
-        className="bg-[#7364DB] w-3/12 text-white font-semibold py-3 px-4 rounded-lg text-sm mb-4"
+        className="bg-[#7364DB] w-8/12 sm:w-3/12 text-white font-semibold py-2 px-2 sm:py-3 sm:px-4 rounded-lg text-sm mb-4 mt-4"
         onClick={props.clickHandlerTaskAdd}
       >
         Add New

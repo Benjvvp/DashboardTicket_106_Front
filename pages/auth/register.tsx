@@ -58,7 +58,6 @@ const Register: NextPage = () => {
         const response = await registerUser(data);
         if (response.status === 200) {
           saveItem("token", response.data.token);
-          console.log(await getItem("token"))
           setIsLoggedIn(true);
           setUserData(response.data.user);
           setRegisterCorrectly(true);
@@ -139,14 +138,14 @@ const Register: NextPage = () => {
   }, [registerForm, intentToSendForm]);
 
   return (
-    <div className="bg-[#E8EDF2] h-full min-h-screen dark:bg-[#313442]">
+    <div className="bg-[#E8EDF2] pt-[100px] h-full min-h-screen dark:bg-[#313442]">
       <Head>
         <title>Register - Project Demo</title>
         <meta name="description" content="Login project" />
         <link rel="icon" href="/favicon.ico" />
         <DefaultSEO />
       </Head>
-      <TopBar onlyLogo showActionButton />
+      <TopBar onlyLogo showActionButton useNormalActionsButtons />
       <div className="h-full py-10 flex items-center justify-center">
         <div className="max-w-md w-full space-y-2 border border-[#E8EDF2] rounded-2xl bg-[#ffffff] py-12 px-4 sm:px-6 lg:px-8 dark:bg-[#1F2128] dark:border-[#313442]">
           <div>

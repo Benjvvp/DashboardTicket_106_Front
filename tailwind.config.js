@@ -5,7 +5,11 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      transitionProperty: {
+        'absolutePositions': 'left top right bottom width height',
+      }
+    },
   },
   important: true
 }

@@ -92,14 +92,14 @@ const Login: NextPage = () => {
   }, [loginForm, intentToSendForm]);
 
   return (
-    <div className="bg-[#E8EDF2] h-full min-h-screen dark:bg-[#313442]">
+    <div className="bg-[#E8EDF2] pt-[100px] h-full min-h-screen max-h-screen dark:bg-[#313442]">
       <Head>
         <title>Login - Project Demo</title>
         <meta name="description" content="Login project" />
         <link rel="icon" href="/favicon.ico" />
         <DefaultSEO />
-      </Head>
-      <TopBar onlyLogo showActionButton />
+      </Head >
+      <TopBar onlyLogo showLogo showActionButton useNormalActionsButtons />
       <div className="h-full py-10 flex items-center justify-center">
         <div className="max-w-md w-full space-y-2 border border-[#E8EDF2] rounded-2xl bg-[#ffffff] dark:bg-[#1F2128] dark:border-[#313442] py-12 px-4 sm:px-6 lg:px-8">
           <div>

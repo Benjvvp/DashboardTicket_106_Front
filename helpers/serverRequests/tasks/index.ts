@@ -1,7 +1,6 @@
 import axios from "axios";
 
-const mainUrl =
-  process.env.MAIN_URL || "http://localhost:80/api";
+const mainUrl = process.env.MAIN_URL || "http://localhost:3001/api";
 
 export const getTasks = async (token: string) => {
   try {
@@ -62,7 +61,11 @@ export const createTask = async (token: string, data: any) => {
     };
   }
 };
-export const addUserToTask = async (token: string, id: string, user: string) => {
+export const addUserToTask = async (
+  token: string,
+  id: string,
+  user: string
+) => {
   try {
     const response = await axios.request({
       method: "post",
@@ -83,8 +86,12 @@ export const addUserToTask = async (token: string, id: string, user: string) => 
       },
     };
   }
-}
-export const removeUserToTask = async (token: string, id: string, userId: string) => {
+};
+export const removeUserToTask = async (
+  token: string,
+  id: string,
+  userId: string
+) => {
   try {
     const response = await axios.request({
       method: "post",
@@ -105,4 +112,54 @@ export const removeUserToTask = async (token: string, id: string, userId: string
       },
     };
   }
-}
+};
+export const deleteTask = async (token: string, id: string) => {
+  try {
+    const response = await axios.request({
+      method: "delete",
+      url: `${mainUrl}/tasks/deleteTask/${id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  } catch (err: any) {
+    return {
+      status: err.response.status,
+      data: {
+        message: err.response.data.message,
+      },
+    };
+  }
+};
+export const editTask = async (
+  token: string,
+  id: string,
+  data: {
+    title: string;
+    description: string;
+    category: string;
+    status: string;
+    priority: string;
+    progress: number;
+  }
+) => {
+  try {
+    const response = await axios.request({
+      method: "put",
+      url: `${mainUrl}/tasks/editTask/${id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data,
+    });
+    return response;
+  } catch (err: any) {
+    return {
+      status: err.response.status,
+      data: {
+        message: err.response.data.message,
+      },
+    };
+  }
+};

@@ -4,10 +4,9 @@ import UserContextProvider from "../contexts/userContext/UserContextProvider";
 import { ThemeProvider } from "next-themes";
 
 function MyApp({ Component, pageProps }: AppProps) {
-
   return (
     <UserContextProvider>
-      <ThemeProvider enableSystem={true} attribute="class" >
+      <ThemeProvider enableSystem={true} attribute="class">
         <Component {...pageProps} />
       </ThemeProvider>
     </UserContextProvider>

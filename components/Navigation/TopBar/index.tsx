@@ -2,7 +2,7 @@ import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../../contexts/userContext/UserContext";
 import { logoutUser } from "../../../helpers/localStorage";
 import styles from "../../../styles/components/topBar.module.css";
@@ -12,6 +12,10 @@ import LogoDark from "../../LogoDark";
 interface TopBarProps {
   onlyLogo?: boolean;
   showActionButton?: boolean;
+  isLarge?: boolean;
+  showLogo?: boolean;
+  isOpenLeftBar?: boolean;
+  useNormalActionsButtons?: boolean;
 }
 export default function TopBar(props: TopBarProps) {
   const { theme } = useTheme();
@@ -25,6 +29,14 @@ export default function TopBar(props: TopBarProps) {
   const [browseDropDownActive, setBrowseDropDownActive] = useState(false);
   const [menuUserOptionsActive, setMenuUserOptionsActive] = useState(false);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  if (!mounted) {
+    return null;
+  }
+  
   const browseDropDownItems = [
     {
       name: "Todo-list",
@@ -40,7 +52,7 @@ export default function TopBar(props: TopBarProps) {
     },
     {
       name: "Chat",
-      href: "/",
+      href: "/chat",
     },
     {
       name: "Discord bot",
@@ -48,20 +60,24 @@ export default function TopBar(props: TopBarProps) {
     },
     {
       name: "Admin panel",
-      href: "/",
+      href: "/dashboard/staff",
     },
   ];
 
   return (
     <>
       <div
-        className={`bg-white h-[100px] dark:bg-[#1F2128] w-full sticky top-0 left-0 z-50 ${styles.TopBar}`}
+        className={`bg-white h-[100px] dark:bg-[#1F2128] w-full fixed top-0 left-0 z-50 ${
+          styles.TopBar
+        } max-w-screen after:border-[#E8EDF2] dark:after:border-[#313442] ${
+          props.isLarge ? "after:w-full" : ""
+        } after:w-full xl:after-w-[88%]`}
       >
-        <div className="flex items-center h-[100px] px-5">
-          <LogoDark />
+        <div className={`flex items-center h-[100px] px-5 ${props.showLogo ? '' : 'xl:pl-[10em]'} ${props.isOpenLeftBar ? 'ml-[5.8%]' : ''} transition-all duration-500 `}>
+          {props.showLogo && <LogoDark />}
           {!props.onlyLogo && (
             <>
-              <div className="flex items-center relative h-full flex-initial">
+              <div className={`hidden lg:flex items-center relative h-full flex-initial`}>
                 <img
                   src="/svg/search-normal.svg"
                   className={styles.searchIcon}
@@ -76,7 +92,7 @@ export default function TopBar(props: TopBarProps) {
               </div>
               <div className="relative">
                 <div
-                  className="flex items-center h-full flex-initial ml-[5em] hover:cursor-pointer relative browseDropDown"
+                  className="flex items-center h-full flex-initial md:ml-[5em] hover:cursor-pointer relative browseDropDown"
                   onClick={() => {
                     if (menuUserOptionsActive) setMenuUserOptionsActive(false);
                     setBrowseDropDownActive(!browseDropDownActive);
@@ -109,18 +125,22 @@ export default function TopBar(props: TopBarProps) {
             </>
           )}
           <div className="ml-auto">
-            {props.showActionButton && <ActionsButtons />}
+            {props.showActionButton && <ActionsButtons useNormalActionButtons />}
             {!props.showActionButton && (
               <div className="flex flex-row gap-10 items-center">
-                <div>
+                <div className="hidden md:inline-block">
                   <img src="/svg/messages.svg" />
                 </div>
-                <div>
+                <div className="hidden md:inline-block">
                   <img src="/svg/notificationBing.svg" />
                 </div>
                 <div className="relative">
                   <div
-                    className={`flex items-center justify-center w-[48px] h-[48px] rounded-full cursor-pointer ${userData.avatar === undefined || null ? 'bg-gradient-to-r from-[#5C8FFF] to-[#C14BFF]' : ''}`}
+                    className={`flex items-center justify-center w-[48px] h-[48px] rounded-full cursor-pointer ${
+                      userData.avatar === undefined || null
+                        ? "bg-gradient-to-r from-[#5C8FFF] to-[#C14BFF]"
+                        : ""
+                    }`}
                     onClick={() => {
                       if (browseDropDownActive) setBrowseDropDownActive(false);
                       setMenuUserOptionsActive(!menuUserOptionsActive);
