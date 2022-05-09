@@ -1,11 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import {
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { useContext, useEffect, useState } from "react";
 import TopBar from "../../../components/Navigation/TopBar";
 import PageTitle from "../../../components/PageTitle";
 import DefaultSEO from "../../../components/SEO";
@@ -17,8 +13,12 @@ import {
   RangeInput,
   TextAreaInput,
 } from "../../../components/Inputs";
-import { deleteTask, editTask, getTask } from "../../../helpers/serverRequests/tasks";
-const StaffEdit: NextPage = () => {
+import {
+  deleteTask,
+  editTask,
+  getTask,
+} from "../../../helpers/serverRequests/tasks";
+const TaskEdit: NextPage = () => {
   const router = useRouter();
   const idTask = router.query._id as string;
 
@@ -110,7 +110,7 @@ const StaffEdit: NextPage = () => {
       }
     } catch (error) {
       console.log(error);
-    }  
+    }
   };
 
   useEffect(() => {
@@ -350,4 +350,4 @@ const StaffEdit: NextPage = () => {
   );
 };
 
-export default StaffEdit;
+export default TaskEdit;

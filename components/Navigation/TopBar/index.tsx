@@ -129,7 +129,9 @@ export default function TopBar(props: TopBarProps) {
             {!props.showActionButton && (
               <div className="flex flex-row gap-10 items-center">
                 <div className="hidden md:inline-block">
-                  <img src="/svg/messages.svg" />
+                  <img src="/svg/messages.svg" onClick={() => {
+                    router.push("/chat");
+                  }} className='cursor-pointer' />
                 </div>
                 <div className="hidden md:inline-block">
                   <img src="/svg/notificationBing.svg" />

@@ -16,13 +16,17 @@ import {
 import styles from "../../styles/components/topBar.module.css";
 import io, { Socket } from "socket.io-client";
 import { UserContext } from "../../contexts/userContext/UserContext";
-import { getUnseenCountMessages } from "../../helpers/serverRequests/chat";
+import {
+  getMessagesInChat,
+  getUnseenCountMessages,
+} from "../../helpers/serverRequests/chat";
 import Link from "next/link";
 
-const Home: NextPage = () => {
+const ChatUser: NextPage = () => {
   const router = useRouter();
-  const socket = useRef();
-
+  const idUserParam = router.query._id as string;
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [messagesToShow, setMessagesToShow] = useState<number>(100);
   const { userData } = useContext(UserContext);
 
   const [users, setUsers] = useState([
@@ -42,6 +46,7 @@ const Home: NextPage = () => {
     avatar: "",
     isOnline: false,
   });
+  const [userChatLoaded, setUserChatLoaded] = useState(false);
 
   const [usersLoading, setUsersLoading] = useState(true);
 
@@ -58,10 +63,54 @@ const Home: NextPage = () => {
 
   const [inputMessage, setInputMessage] = useState("");
 
+  const [messages, setMessages] = useState<
+    Array<{
+      message: string;
+      user: string;
+      sender: string;
+      createdAt: Date;
+      seen: Boolean;
+    }>
+  >([]);
+  const [messagesLoading, setMessagesLoading] = useState(true);
+
   const checkToken = async () => {
     const token = await getItem("token");
     if (!token || token === undefined || token === "undefined")
       router.push("/auth/login");
+  };
+
+  const onSubmitMessage = async () => {
+    if (inputMessage !== "") {
+      const data = {
+        message: inputMessage,
+        userId: userData._id,
+        senderId: userChat._id,
+      };
+      socket?.emit("chatSubmitMessage", data);
+      setInputMessage("");
+    }
+  };
+
+  const getMessagesChat = async () => {
+    try {
+      console.log("getMessagesChat");
+      const token = await JSON.parse(await getItem("token"));
+      console.log(userData._id, userChat._id);
+      const response = await getMessagesInChat(
+        token,
+        { userId: userData._id, senderId: userChat._id },
+        messagesToShow
+      );
+      if (response.status === 200) {
+        console.log(response.data);
+        setMessages(response.data.messages);
+      } else {
+        console.log(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const SkeletonUsersCard = () => {
@@ -71,7 +120,7 @@ const Home: NextPage = () => {
         {users.map((user, index) => (
           <div
             className="flex flex-row p-2 py-5 rounded-lg w-full border-[1px] border-[#E8EDF2] dark:border-[#313442] bg-[#F5F5A] dark:bg-[bg-[#F5F5A] #[0F0F12]"
-            key={`cardUser-${index}`}
+            key={`cardUserSkeleton-${index}`}
           >
             <div className="animate-pulse flex space-x-4 w-full">
               <div className="rounded-full bg-slate-400 dark:bg-slate-700 h-10 w-10"></div>
@@ -87,6 +136,54 @@ const Home: NextPage = () => {
                     <div className="col-span-1"></div>
                     <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </>
+    );
+  };
+  const SkeletonMessagesCard = () => {
+    const messages = [1, 1, 2, 1];
+    return (
+      <>
+        {messages.map((user, index) => (
+          <div
+            className={`flex flex-col p-2 py-5 w-5/12 bg-[#F5F5A] dark:bg-[bg-[#F5F5A] #[0F0F12] ${
+              user === 1 ? "ml-auto" : ""
+            }`}
+            key={`cardUser-${index}`}
+          >
+            <div
+              className={`animate-pulse flex flex-row items-center gap-5 w-full ${
+                user === 1 ? "flex-row-reverse" : ""
+              }`}
+            >
+              <div className="rounded-full bg-slate-400 dark:bg-slate-700 h-10 w-10"></div>
+              <div className="flex-1 space-y-2">
+                <div
+                  className={`grid grid-cols-12`}
+                  dir={user === 1 ? "rtl" : "ltr"}
+                >
+                  <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-3"></div>
+                  <div className="col-span-1"></div>
+                  <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
+                </div>
+              </div>
+            </div>
+            <div
+              className={`animate-pulse flex space-x-4 w-full ${
+                user === 1 ? "pr-10" : "pl-10"
+              }`}
+            >
+              <div className="flex-1 space-y-2 py-1">
+                <div className="grid grid-cols-4 gap-4">
+                  <div
+                    className={`h-10 bg-slate-500 dark:bg-slate-700 rounded-lg col-span-4 ${
+                      user === 1 ? "rounded-tr-none" : "rounded-tl-none"
+                    }`}
+                  ></div>
                 </div>
               </div>
             </div>
@@ -127,7 +224,9 @@ const Home: NextPage = () => {
     const token = await JSON.parse(await getItem("token"));
     const response = await getUser(token, userId);
     if (response.status === 200) {
+      console.log(response.data)
       setUserChat(response.data.user);
+      setUserChatLoaded(false);
     }
     return null;
   };
@@ -135,17 +234,16 @@ const Home: NextPage = () => {
   useEffect(() => {
     checkToken();
     getUsersFromDB();
-    getUserById(router.query._id as string);
-    //Connect to socket
-    if (socket.current === undefined) {
-      let { current } = socket as any;
-      current = io("ws://localhost:3001");
-
-      current.on("connection", () => {
-        console.log("Connected to socket");
-      });
+    if (router.isReady) {
+      getUserById(idUserParam);
     }
-  }, []);
+    if(userChat._id){
+      getMessagesChat();
+    }
+    const newSocket = io("ws://localhost:3001");
+    setSocket(newSocket);
+    console.log(messages);
+  }, [router.isReady, setSocket, setMessages, setUserChat, setUserChatLoaded, userChat._id]);
 
   return (
     <div className="bg-[#E8EDF2] mt-[100px] h-full max-w-screen min-w-screen dark:bg-[#0F0F12] overflow-hidden">
@@ -164,9 +262,9 @@ const Home: NextPage = () => {
       <div
         className={`w-full ${
           isOpenLeftBar ? " xl:ml-[12%] xl:w-[88%]" : " xl:ml-[6%] xl:w-[94%]"
-        } block relative h-full min-h-[89vh] p-[3em] pt-5 transition-all duration-500`}
+        } block relative h-full min-h-[89vh] max-h-[89vh] p-[3em] pt-5 transition-all duration-500`}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 min-h-[75vh] w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 h-full">
           <div className="col-span-4 lg:col-span-1 flex flex-col gap-3 w-full bg-white dark:bg-[#1F2128] border-[1px] border-[#E8EDF2] dark:border-[#313442] rounded-xl p-[24px] pt-[14px]">
             <div className="flex flex-col md:flex-row lg:flex-col xl:flex-row justify-between lg:items-start xl:items-center md:items-center w-full border-b-[1px] border-[#E8EDF2] dark:border-[#313442] pb-5 relative">
               <p>{messagesCount} Messages</p>
@@ -217,41 +315,50 @@ const Home: NextPage = () => {
                 onChange={(e) => setSearchInput(e.target.value)}
               />
             </div>
-            <div className="flex flex-col gap-5 h-full overflow-y-auto">
+            <div className="flex flex-col gap-5 h-full overflow-y-auto max-h-[70vh]">
               {usersLoading ? (
                 <SkeletonUsersCard />
               ) : users.length > 0 ? (
-                users.map((user: any, index: number) => (
-                  <Link href={`/chat/${user._id}`}>
-                    <div
-                      className="flex flex-row cursor-pointer p-2 py-5 rounded-lg w-full border-[1px] border-[#E8EDF2] dark:border-[#313442] bg-[#F5F5A] dark:bg-[bg-[#F5F5A] #[0F0F12]"
-                      key={`userCard-${index}`}
-                    >
-                      <div className="flex space-x-4 w-full">
-                        <UserIcon
-                          userName={user.userName}
-                          avatar={user.avatar}
-                        />
-                        <div className="flex-1 space-y-2 py-1">
-                          <div className="grid grid-cols-4 gap-4">
-                            <p className="col-span-2 text-[#07070C] dark:text-[#F1F1F1] font-medium">
-                              {user.userName}
-                            </p>
-                            <div className="col-span-1"></div>
-                            <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
-                          </div>
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-5 gap-4">
-                              <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-3"></div>
-                              <div className="col-span-1"></div>
-                              <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
+                users
+                  .filter((user: any) => {
+                    return user.userName !== userData.userName;
+                  })
+                  .map((user: any, index: number) => {
+                    return (
+                      <Link
+                        href={`/chat/${user._id}`}
+                        key={`chatTextCard-${index}`}
+                      >
+                        <div
+                          className="flex flex-row cursor-pointer p-2 py-5 rounded-lg w-full border-[1px] border-[#E8EDF2] dark:border-[#313442] bg-[#F5F5A] dark:bg-[bg-[#F5F5A] #[0F0F12]"
+                          key={`userCardToClick-${index}`}
+                        >
+                          <div className="flex space-x-4 w-full">
+                            <UserIcon
+                              userName={user.userName}
+                              avatar={user.avatar}
+                            />
+                            <div className="flex-1 space-y-2 py-1">
+                              <div className="grid grid-cols-4 gap-4">
+                                <p className="col-span-2 text-[#07070C] dark:text-[#F1F1F1] font-medium">
+                                  {user.userName}
+                                </p>
+                                <div className="col-span-1"></div>
+                                <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
+                              </div>
+                              <div className="space-y-3">
+                                <div className="grid grid-cols-5 gap-4">
+                                  <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-3"></div>
+                                  <div className="col-span-1"></div>
+                                  <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))
+                      </Link>
+                    );
+                  })
               ) : (
                 <p className="text-center text-[#9A9AAF] dark:text-[#64646F] mt-2">
                   No users found
@@ -262,26 +369,82 @@ const Home: NextPage = () => {
           <div className="col-span-4 lg:col-span-3 flex justify-between flex-col gap-3 w-full h-full bg-white dark:bg-[#1F2128] border-[1px] border-[#E8EDF2] dark:border-[#313442] rounded-xl p-[2em] pt-[1.5em]">
             <div className="flex flex-row justify-between gap-10 border-b-[1px] border-[#E8EDF2] dark:border-[#313442] w-full pb-2 max-h-[3em]">
               <div className="flex flex-row gap-10 w-full max-h-[2em]">
-                <UserIcon
-                  userName={userChat.userName}
-                  avatar={userChat.avatar}
-                />
-                <div className="flex flex-col justify-center">
-                  <p className="text-[#07070C] dark:text-[#F1F1F1] font-medium text-[16px]">
-                    {userChat.userName}
-                  </p>
-                  <p className="text-[#9A9AAF] dark:text-[#64646F] font-semibold text-[12px]">
-                    {userChat.isOnline ? "Active now" : "Do not active now"}
-                    <div
-                      className={`inline-block ml-2 h-[10px] w-[10px] rounded-full ${
-                        userChat.isOnline ? "bg-[#50D1B2]" : "bg-[#E23738]"
-                      } border-[1px] border-white-200`}
-                    ></div>
-                  </p>
-                </div>
+                {userChatLoaded ? (
+                  <>
+                    <UserIcon
+                      userName={userChat.userName}
+                      avatar={userChat.avatar}
+                    />
+                    <div className="flex flex-col justify-center">
+                      <p className="text-[#07070C] dark:text-[#F1F1F1] font-medium text-[16px]">
+                        {userChat.userName}
+                      </p>
+                      <div className="w-full">
+                        <p className="inline-block text-[#9A9AAF] dark:text-[#64646F] font-semibold text-[12px]">
+                          {userChat.isOnline
+                            ? "Active now"
+                            : "Do not active now"}
+                        </p>
+                        <div
+                          className={`inline-block ml-2 h-[10px] w-[10px] rounded-full ${
+                            userChat.isOnline ? "bg-[#50D1B2]" : "bg-[#E23738]"
+                          } border-[1px] border-white-200`}
+                        ></div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="grid grid-cols-4 gap-4">
+                    <div className="col-span-1"></div>
+                    <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="w-full relative">
+            <div
+              className="flex flex-col gap-5 h-full overflow-y-auto"
+              style={{ maxHeight: "100%" }}
+            >
+              {messagesLoading ? (
+                <SkeletonMessagesCard />
+              ) : messages.length > 0 ? (
+                messages.map((message: any, index: number) => {
+                  return (
+                    <div
+                      className={`flex flex-row justify-start items-start ${
+                        message.userName === userData.userName
+                          ? "flex-row-reverse"
+                          : "flex-row"
+                      }`}
+                      key={`messageCard-${index}`}
+                    >
+                      <div className="flex flex-col gap-5 w-full">
+                        <div className="flex flex-row gap-5 w-full">
+                          <UserIcon
+                            userName={message.userName}
+                            avatar={message.avatar}
+                          />
+
+                          <div className="flex flex-col gap-5 w-full">
+                            <p className="text-[#07070C] dark:text-[#F1F1F1] font-medium text-[16px]">
+                              {message.userName}
+                            </p>
+                            <p className="text-[#9A9AAF] dark:text-[#64646F] font-medium text-[12px]">
+                              {message.message}
+                            </p>
+
+                            <p className="text-[#9A9AAF] dark:text-[#64646F] font-medium text-[12px]">
+                              {message.date}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : null}
+            </div>
+            <div className="relative">
               <input
                 type="text"
                 name="chatMessage"
@@ -292,7 +455,7 @@ const Home: NextPage = () => {
                 value={inputMessage}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    console.log('Enter');
+                    onSubmitMessage();
                   }
                 }}
               />
@@ -302,7 +465,7 @@ const Home: NextPage = () => {
                 srcSet=""
                 className="w-[44px] h-[44px] p-3 rounded-full bg-[#2775FF] absolute right-[2%] top-2/4 transform -translate-y-1/2 cursor-pointer"
                 onClick={() => {
-                  console.log("Send");
+                  onSubmitMessage();
                 }}
               />
             </div>
@@ -314,4 +477,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default ChatUser;

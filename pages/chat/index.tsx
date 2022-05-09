@@ -15,9 +15,9 @@ import { UserContext } from "../../contexts/userContext/UserContext";
 import { getUnseenCountMessages } from "../../helpers/serverRequests/chat";
 import Link from "next/link";
 
-const Home: NextPage = () => {
+const Chat: NextPage = () => {
   const router = useRouter();
-  const socket = useRef();
+  const socket = useRef<Socket>();
 
   const { userData } = useContext(UserContext);
 
@@ -114,11 +114,10 @@ const Home: NextPage = () => {
     checkToken();
     getUsersFromDB();
     //Connect to socket
-    let { current } = socket as any;
-    current = io("ws://localhost:3001");
-
-    current.on("connection", () => {
-      console.log("Connected to socket");
+    socket.current = io("ws://localhost:3001");
+    //Listen to new message
+    socket.current.on("newMessage", (data: any) => {
+      console.log(data);
     });
   }, []);
 
@@ -196,37 +195,42 @@ const Home: NextPage = () => {
               {usersLoading ? (
                 <SkeletonUsersCard />
               ) : users.length > 0 ? (
-                users.map((user: any, index: number) => (
-                  <Link href={`/chat/${user._id}`}>
-                    <div
-                      className="flex flex-row cursor-pointer p-2 py-5 rounded-lg w-full border-[1px] border-[#E8EDF2] dark:border-[#313442] bg-[#F5F5A] dark:bg-[bg-[#F5F5A] #[0F0F12]"
-                      key={`userCard-${index}`}
-                    >
-                      <div className="flex space-x-4 w-full">
-                        <UserIcon
-                          userName={user.userName}
-                          avatar={user.avatar}
-                        />
-                        <div className="flex-1 space-y-2 py-1">
-                          <div className="grid grid-cols-4 gap-4">
-                            <p className="col-span-2 text-[#07070C] dark:text-[#F1F1F1] font-medium">
-                              {user.userName}
-                            </p>
-                            <div className="col-span-1"></div>
-                            <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
-                          </div>
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-5 gap-4">
-                              <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-3"></div>
-                              <div className="col-span-1"></div>
-                              <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
+                users
+                  .filter((user: any) => {
+                    return user.userName !== userData.userName;
+                  })
+                  .map((user: any, index: number) => {
+                    return (
+                      <Link href={`/chat/${user._id}`} key={`userCard-${index}`}>
+                        <div
+                          className="flex flex-row cursor-pointer p-2 py-5 rounded-lg w-full border-[1px] border-[#E8EDF2] dark:border-[#313442] bg-[#F5F5A] dark:bg-[bg-[#F5F5A] #[0F0F12]"
+                        >
+                          <div className="flex space-x-4 w-full">
+                            <UserIcon
+                              userName={user.userName}
+                              avatar={user.avatar}
+                            />
+                            <div className="flex-1 space-y-2 py-1">
+                              <div className="grid grid-cols-4 gap-4">
+                                <p className="col-span-2 text-[#07070C] dark:text-[#F1F1F1] font-medium">
+                                  {user.userName}
+                                </p>
+                                <div className="col-span-1"></div>
+                                <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
+                              </div>
+                              <div className="space-y-3">
+                                <div className="grid grid-cols-5 gap-4">
+                                  <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-3"></div>
+                                  <div className="col-span-1"></div>
+                                  <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))
+                      </Link>
+                    );
+                  })
               ) : (
                 <p className="text-center text-[#9A9AAF] dark:text-[#64646F] mt-2">
                   No users found
@@ -242,4 +246,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default Chat;
