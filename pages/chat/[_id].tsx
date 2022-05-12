@@ -1,7 +1,13 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import react, { useContext, useEffect, useRef, useState } from "react";
+import react, {
+  LegacyRef,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import Footer from "../../components/Footer";
 import LeftBar from "../../components/Navigation/LeftBar";
 import TopBar from "../../components/Navigation/TopBar";
@@ -25,6 +31,8 @@ import Link from "next/link";
 const ChatUser: NextPage = () => {
   const router = useRouter();
   const idUserParam = router.query._id as string;
+
+  const chatRef = useRef<HTMLDivElement>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [messagesToShow, setMessagesToShow] = useState<number>(100);
   const { userData } = useContext(UserContext);
@@ -35,9 +43,9 @@ const ChatUser: NextPage = () => {
       userName: "",
       avatar: "",
       isOnline: false,
-      LastMessage: "",
-      LastMessageTime: "",
-      messageWithoutView: 0,
+      lastMessage: "",
+      lastMessageTime: "",
+      unseenMessagesCount: 0,
     },
   ]);
   const [userChat, setUserChat] = useState({
@@ -84,32 +92,11 @@ const ChatUser: NextPage = () => {
     if (inputMessage !== "") {
       const data = {
         message: inputMessage,
-        userId: userData._id,
-        senderId: userChat._id,
+        userId: userChat._id,
+        senderId: userData._id,
       };
       socket?.emit("chatSubmitMessage", data);
       setInputMessage("");
-    }
-  };
-
-  const getMessagesChat = async () => {
-    try {
-      console.log("getMessagesChat");
-      const token = await JSON.parse(await getItem("token"));
-      console.log(userData._id, userChat._id);
-      const response = await getMessagesInChat(
-        token,
-        { userId: userData._id, senderId: userChat._id },
-        messagesToShow
-      );
-      if (response.status === 200) {
-        console.log(response.data);
-        setMessages(response.data.messages);
-      } else {
-        console.log(response.data);
-      }
-    } catch (error) {
-      console.log(error);
     }
   };
 
@@ -120,7 +107,7 @@ const ChatUser: NextPage = () => {
         {users.map((user, index) => (
           <div
             className="flex flex-row p-2 py-5 rounded-lg w-full border-[1px] border-[#E8EDF2] dark:border-[#313442] bg-[#F5F5A] dark:bg-[bg-[#F5F5A] #[0F0F12]"
-            key={`cardUserSkeleton-${index}`}
+            key={`cardUserSkeleton-${index}-${user}`}
           >
             <div className="animate-pulse flex space-x-4 w-full">
               <div className="rounded-full bg-slate-400 dark:bg-slate-700 h-10 w-10"></div>
@@ -153,7 +140,7 @@ const ChatUser: NextPage = () => {
             className={`flex flex-col p-2 py-5 w-5/12 bg-[#F5F5A] dark:bg-[bg-[#F5F5A] #[0F0F12] ${
               user === 1 ? "ml-auto" : ""
             }`}
-            key={`cardUser-${index}`}
+            key={`cardMessagesSkeleton-${index}-${user}`}
           >
             <div
               className={`animate-pulse flex flex-row items-center gap-5 w-full ${
@@ -193,58 +180,102 @@ const ChatUser: NextPage = () => {
     );
   };
 
-  const getUsersFromDB = async () => {
-    const token = await JSON.parse(await getItem("token"));
-    const response = await getAllUsers(token);
-    if (response.status === 200) {
-      setUsers(
-        response.data.users.filter(
-          (user: any) => user.userName !== userData.userName
-        )
-      );
-      setUsersLoading(false);
-    } else {
-      setUsersLoading(false);
-    }
-  };
-
-  const getUnseenMessages = async (senderId: string) => {
-    const token = await JSON.parse(await getItem("token"));
-    const response = await getUnseenCountMessages(token, {
-      userId: userData._id,
-      senderId: senderId,
-    });
-    if (response.status === 200) {
-      return response.data.count;
-    }
-    return 0;
-  };
-
   const getUserById = async (userId: string) => {
     const token = await JSON.parse(await getItem("token"));
     const response = await getUser(token, userId);
     if (response.status === 200) {
-      console.log(response.data)
-      setUserChat(response.data.user);
-      setUserChatLoaded(false);
+      const isOnline = users.find((user) => user._id === userId)?.isOnline;
+      setUserChat({
+        _id: response.data.user._id,
+        userName: response.data.user.userName,
+        avatar: response.data.user.avatar,
+        isOnline: isOnline ? isOnline : false,
+      });
+      setUserChatLoaded(true);
     }
     return null;
   };
 
   useEffect(() => {
     checkToken();
-    getUsersFromDB();
     if (router.isReady) {
-      getUserById(idUserParam);
+      if(users){
+        getUserById(idUserParam);
+      }
     }
-    if(userChat._id){
-      getMessagesChat();
-    }
-    const newSocket = io("ws://localhost:3001");
-    setSocket(newSocket);
-    console.log(messages);
-  }, [router.isReady, setSocket, setMessages, setUserChat, setUserChatLoaded, userChat._id]);
 
+    if (!messagesLoading) {
+      if (chatRef.current) {
+        chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
+      }
+    }
+  }, [
+    router.isReady,
+    setMessages,
+    setUserChat,
+    setUserChatLoaded,
+    userChat._id,
+    chatRef,
+    idUserParam,
+    userData._id,
+    messagesLoading,
+    getMessagesInChat,
+  ]);
+  //Socket
+  useEffect(() => {
+    const newSocket = io("ws://localhost:3001");
+    newSocket.on("connect", () => {
+      newSocket.emit("join", { userId: userData._id });
+    });
+    newSocket.on("disconnect", () => {
+      newSocket.emit("leave", { userId: userData._id });
+    });
+    if (userChat._id && userData._id) {
+      newSocket.emit("loadMessages", {
+        userId: userData._id,
+        senderId: userChat._id,
+      });
+      newSocket.emit("getUsersListInChat", {
+        userId: userData._id,
+      });
+    }
+    newSocket.on("loadMessages", (data: any) => {
+      setMessages(data.messages);
+      setMessagesLoading(false);
+    });
+    newSocket.on("getUsersListInChat", (data: any) => {
+      setUsers(data.usersList);
+      setUsersLoading(false);
+      data.usersList.forEach((user:any) => {
+        setMessagesCount(messagesCount + user.messagesCount);
+      })
+    });
+    newSocket.on("chatMessage", (data: any) => {
+      setMessages([...messages, data]);
+    });
+
+    setSocket(newSocket);
+  }, [setSocket, userData._id, userChat._id, usersLoading]);
+  //Chat scroll
+  useEffect(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
+    }
+    socket?.emit("chatSeen", {
+      userId: userData._id,
+      senderId: userChat._id,
+    });
+    socket?.on("chatSeen", () => {
+      //Update messages seen
+      const newMessages = [...messages];
+      newMessages.forEach((message) => {
+        if (message.sender === userChat._id) {
+          message.seen = true;
+        }
+      });
+      setMessages(newMessages);
+    });
+  }, [messages, setMessages]);
   return (
     <div className="bg-[#E8EDF2] mt-[100px] h-full max-w-screen min-w-screen dark:bg-[#0F0F12] overflow-hidden">
       <Head>
@@ -262,12 +293,12 @@ const ChatUser: NextPage = () => {
       <div
         className={`w-full ${
           isOpenLeftBar ? " xl:ml-[12%] xl:w-[88%]" : " xl:ml-[6%] xl:w-[94%]"
-        } block relative h-full min-h-[89vh] max-h-[89vh] p-[3em] pt-5 transition-all duration-500`}
+        } block relative h-full min-h-[89.5vh] max-h-[89vh] p-[3em] pt-5 transition-all duration-500`}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 min-h-[75vh] max-h-[75vh] h-full">
           <div className="col-span-4 lg:col-span-1 flex flex-col gap-3 w-full bg-white dark:bg-[#1F2128] border-[1px] border-[#E8EDF2] dark:border-[#313442] rounded-xl p-[24px] pt-[14px]">
             <div className="flex flex-col md:flex-row lg:flex-col xl:flex-row justify-between lg:items-start xl:items-center md:items-center w-full border-b-[1px] border-[#E8EDF2] dark:border-[#313442] pb-5 relative">
-              <p>{messagesCount} Messages</p>
+              <p>{messagesCount ? messagesCount : 0} Messages</p>
               <p
                 className="text-[#8B8B93] cursor-pointer mt-2 md:mt-0 lg:mt-2 xl:mt-0"
                 onClick={() => setChatListDropDown(!chatListDropDown)}
@@ -327,30 +358,47 @@ const ChatUser: NextPage = () => {
                     return (
                       <Link
                         href={`/chat/${user._id}`}
-                        key={`chatTextCard-${index}`}
+                        key={`chatTextCardPageUser-${index}-${user._id}`}
                       >
-                        <div
-                          className="flex flex-row cursor-pointer p-2 py-5 rounded-lg w-full border-[1px] border-[#E8EDF2] dark:border-[#313442] bg-[#F5F5A] dark:bg-[bg-[#F5F5A] #[0F0F12]"
-                          key={`userCardToClick-${index}`}
-                        >
-                          <div className="flex space-x-4 w-full">
+                        <div className="flex flex-row cursor-pointer p-2 py-3 px-5 rounded-lg w-full border-[1px] border-[#E8EDF2] dark:border-[#313442] bg-[#F5F5A] dark:bg-[bg-[#F5F5A] #[0F0F12]">
+                          <div className="flex space-x-4 items-center w-full">
                             <UserIcon
                               userName={user.userName}
                               avatar={user.avatar}
                             />
-                            <div className="flex-1 space-y-2 py-1">
-                              <div className="grid grid-cols-4 gap-4">
-                                <p className="col-span-2 text-[#07070C] dark:text-[#F1F1F1] font-medium">
-                                  {user.userName}
+                            <div className="flex-1 py-1">
+                              <div className="flex flex-row  justify-between items-center">
+                                <div>
+                                  <p className="col-span-2 text-[#07070C] dark:text-[#F1F1F1] font-medium inline-block">
+                                    {user.userName}
+                                  </p>
+                                  {user.unseenMessagesCount > 0 && (
+                                    <p className="text-[#FFFFFF] inline-block p-1 px-[.5em] bg-[#E23738] rounded-md text-[12px] ml-2">
+                                      {user.unseenMessagesCount}
+                                    </p>
+                                  )}
+                                </div>
+                                <p className="col-span-2 text-[#9A9AAF] dark:text-[#64646F] text-[12px]">
+                                  {new Date(
+                                    user.lastMessageTime
+                                  ).toLocaleTimeString("en-US", {
+                                    hour12: true,
+                                    hour: "numeric",
+                                    minute: "numeric",
+                                    hourCycle: "h24",
+                                    timeZone:
+                                      Intl.DateTimeFormat().resolvedOptions()
+                                        .timeZone,
+                                  })}
                                 </p>
-                                <div className="col-span-1"></div>
-                                <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
                               </div>
                               <div className="space-y-3">
                                 <div className="grid grid-cols-5 gap-4">
-                                  <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-3"></div>
-                                  <div className="col-span-1"></div>
-                                  <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
+                                  <p className="col-span-2 text-[#9A9AAF] dark:text-[#64646F] text-[12px]">
+                                    {user.lastMessage.length > 10
+                                      ? user.lastMessage.slice(0, 10) + "..."
+                                      : user.lastMessage}
+                                  </p>
                                 </div>
                               </div>
                             </div>
@@ -366,7 +414,7 @@ const ChatUser: NextPage = () => {
               )}
             </div>
           </div>
-          <div className="col-span-4 lg:col-span-3 flex justify-between flex-col gap-3 w-full h-full bg-white dark:bg-[#1F2128] border-[1px] border-[#E8EDF2] dark:border-[#313442] rounded-xl p-[2em] pt-[1.5em]">
+          <div className="col-span-4 lg:col-span-3 flex justify-between flex-col gap-3 w-full h-full bg-white dark:bg-[#1F2128] border-[1px] border-[#E8EDF2] dark:border-[#313442] rounded-xl p-[2em] pt-[1.5em] max-h-[75vh]">
             <div className="flex flex-row justify-between gap-10 border-b-[1px] border-[#E8EDF2] dark:border-[#313442] w-full pb-2 max-h-[3em]">
               <div className="flex flex-row gap-10 w-full max-h-[2em]">
                 {userChatLoaded ? (
@@ -402,53 +450,149 @@ const ChatUser: NextPage = () => {
               </div>
             </div>
             <div
-              className="flex flex-col gap-5 h-full overflow-y-auto"
+              className="flex flex-col h-full overflow-y-auto w-full max-h-[70vh] px-5"
               style={{ maxHeight: "100%" }}
+              ref={chatRef}
+              onScroll={(e) => {
+                //Check if user is at the top of the chat and if so, load more messages from the server
+                if (e.currentTarget.scrollTop === 0 && !messagesLoading) {
+                  console.log("Loading more messages");
+                  setMessagesToShow(messagesToShow + 100);
+                }
+              }}
             >
               {messagesLoading ? (
                 <SkeletonMessagesCard />
               ) : messages.length > 0 ? (
-                messages.map((message: any, index: number) => {
-                  return (
-                    <div
-                      className={`flex flex-row justify-start items-start ${
-                        message.userName === userData.userName
-                          ? "flex-row-reverse"
-                          : "flex-row"
-                      }`}
-                      key={`messageCard-${index}`}
-                    >
-                      <div className="flex flex-col gap-5 w-full">
-                        <div className="flex flex-row gap-5 w-full">
-                          <UserIcon
-                            userName={message.userName}
-                            avatar={message.avatar}
-                          />
+                messages.map(
+                  (
+                    message: {
+                      message: string;
+                      user: string;
+                      sender: string;
+                      createdAt: Date;
+                      seen: Boolean;
+                    },
+                    index: number
+                  ) => {
+                    const separatorForDiferentDate =
+                      index === 0 ||
+                      new Date(message.createdAt).getDate() !==
+                        new Date(messages[index - 1].createdAt).getDate();
 
-                          <div className="flex flex-col gap-5 w-full">
-                            <p className="text-[#07070C] dark:text-[#F1F1F1] font-medium text-[16px]">
-                              {message.userName}
-                            </p>
-                            <p className="text-[#9A9AAF] dark:text-[#64646F] font-medium text-[12px]">
-                              {message.message}
-                            </p>
-
-                            <p className="text-[#9A9AAF] dark:text-[#64646F] font-medium text-[12px]">
-                              {message.date}
+                    return (
+                      <>
+                        {separatorForDiferentDate && (
+                          <div
+                            className="flex flex-col justify-center"
+                            key={`separatorForDate-${index}`}
+                          >
+                            <p className="text-center text-[#9A9AAF] dark:text-[#64646F] font-regular text-[12px]">
+                              {new Date(message.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "long",
+                                  day: "numeric",
+                                  year: "numeric",
+                                }
+                              )}
                             </p>
                           </div>
+                        )}
+
+                        <div
+                          className={`flex flex-col p-2 py-5 w-5/12 bg-[#F5F5A] dark:bg-[bg-[#F5F5A] #[0F0F12] ${
+                            message.sender === userData._id ? "ml-auto" : ""
+                          }`}
+                          key={`messageInChatsUsers-${index}`}
+                        >
+                          <div
+                            className={`flex flex-row items-center gap-5 w-full ${
+                              message.sender === userData._id
+                                ? "flex-row-reverse"
+                                : ""
+                            }`}
+                          >
+                            <UserIcon
+                              userName={
+                                message.sender === userData._id
+                                  ? userData.userName
+                                  : userChat.userName
+                              }
+                              avatar={
+                                message.sender === userData._id
+                                  ? userData.avatar
+                                  : userChat.avatar
+                              }
+                            />
+                            <div className="flex-1 space-y-2">
+                              <div
+                                className={`flex flex-row gap-2`}
+                                dir={
+                                  message.sender === userData._id
+                                    ? "rtl"
+                                    : "ltr"
+                                }
+                              >
+                                <p className="text-[#656575] dark:text-[#70707C] text-[12px]">
+                                  {message.sender === userData._id
+                                    ? userData.userName
+                                    : userChat.userName}
+                                </p>
+                                <p className="text-[#9A9AAF] dark:text-[#64646F] text-[12px]">
+                                  {
+                                    //Date format to client side to show the time
+                                    new Date(message.createdAt)
+                                      .toLocaleTimeString("en-US", {
+                                        hour12: true,
+                                        hour: "numeric",
+                                        minute: "numeric",
+                                        hourCycle: "h24",
+                                        timeZone:
+                                          Intl.DateTimeFormat().resolvedOptions()
+                                            .timeZone,
+                                      })
+                                      .split(" ")
+                                      .join("")
+                                  }
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            className={`flex space-x-4 w-full ${
+                              message.sender === userData._id
+                                ? "pr-10"
+                                : "pl-10"
+                            }`}
+                          >
+                            <div className="flex-1 space-y-2 py-1">
+                              <div className="grid grid-cols-4 gap-4">
+                                <div
+                                  className={`bg-[#E8EDF2] dark:bg-[#313442] p-5 rounded-lg col-span-4 ${
+                                    message.sender === userData._id
+                                      ? "rounded-tr-none"
+                                      : "rounded-tl-none"
+                                  }`}
+                                >
+                                  <p className="text-[12px] text-[#07070C] dark:text-[#F1F1F1]">
+                                    {message.message}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  );
-                })
+                      </>
+                    );
+                  }
+                )
               ) : null}
             </div>
             <div className="relative">
               <input
-                type="text"
                 name="chatMessage"
-                className={`${styles.inputText} placeholder:text-[12px] max-h-[50px] focus:outline focus:outline-1 focus:outline-[#B2A7FF] dark:bg-transparent dark:text-white dark:placeholder-[#64646F] border-[1px] border-[#E8EDF2] dark:border-[#313442] w-full p-5 py-8 rounded-lg`}
+                className={`${styles.inputText} placeholder:text-[12px] h-[50px] max-h-[100px] focus:outline focus:outline-1 focus:outline-[#B2A7FF] dark:bg-transparent dark:text-white dark:placeholder-[#64646F] border-[1px] border-[#E8EDF2] dark:border-[#313442] w-full p-5 py-8 rounded-lg`}
                 placeholder="Type to add your message"
                 onChange={(e) => setInputMessage(e.target.value)}
                 required

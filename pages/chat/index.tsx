@@ -17,7 +17,7 @@ import Link from "next/link";
 
 const Chat: NextPage = () => {
   const router = useRouter();
-  const socket = useRef<Socket>();
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   const { userData } = useContext(UserContext);
 
@@ -27,11 +27,12 @@ const Chat: NextPage = () => {
       userName: "",
       avatar: "",
       isOnline: false,
-      LastMessage: "",
-      LastMessageTime: "",
-      messageWithoutView: 0,
+      lastMessage: "",
+      lastMessageTime: "",
+      unseenMessagesCount: 0,
     },
   ]);
+
   const [usersLoading, setUsersLoading] = useState(true);
 
   const [isOpenLeftBar, setIsOpenLeftBar] = useState(true);
@@ -40,8 +41,6 @@ const Chat: NextPage = () => {
   const [chatListDropDown, setChatListDropDown] = useState<Boolean>(false);
 
   const [messagesCount, setMessagesCount] = useState<number>(0);
-
-  const [isLoad, setIsLoad] = useState<Boolean>(false);
 
   const [searchInput, setSearchInput] = useState("");
 
@@ -83,44 +82,34 @@ const Chat: NextPage = () => {
     );
   };
 
-  const getUsersFromDB = async () => {
-    const token = await JSON.parse(await getItem("token"));
-    const response = await getAllUsers(token);
-    if (response.status === 200) {
-      setUsers(
-        response.data.users.filter(
-          (user: any) => user.userName !== userData.userName
-        )
-      );
-      setUsersLoading(false);
-    } else {
-      setUsersLoading(false);
-    }
-  };
-
-  const getUnseenMessages = async (senderId: string) => {
-    const token = await JSON.parse(await getItem("token"));
-    const response = await getUnseenCountMessages(token, {
-      userId: userData._id,
-      senderId: senderId,
-    });
-    if (response.status === 200) {
-      return response.data.count;
-    }
-    return 0;
-  };
-
   useEffect(() => {
     checkToken();
-    getUsersFromDB();
-    //Connect to socket
-    socket.current = io("ws://localhost:3001");
-    //Listen to new message
-    socket.current.on("newMessage", (data: any) => {
-      console.log(data);
+    const newSocket = io("ws://localhost:3001");
+    newSocket.on("connect", () => {
+      newSocket.emit("join", { userId: userData._id });
     });
-  }, []);
-
+    if (userData._id) {
+      newSocket.emit("getUsersListInChat", {
+        userId: userData._id,
+      });
+    }
+    newSocket.on("getUsersListInChat", (data: any) => {
+      console.log(data);
+      setUsers(data.usersList);
+      setUsersLoading(false);
+    });
+    setSocket(newSocket);
+  }, [setSocket, userData._id, usersLoading]);
+  
+  useEffect(() => {
+    if (socket) {
+      socket.on("chatMessage", (data: any) => {
+        socket.emit("getUsersListInChat", {
+          userId: userData._id,
+        });
+      });
+    }
+  }, [socket, users]);
   return (
     <div className="bg-[#E8EDF2] mt-[100px] h-full max-w-screen min-w-screen dark:bg-[#0F0F12] overflow-hidden">
       <Head>
@@ -201,28 +190,49 @@ const Chat: NextPage = () => {
                   })
                   .map((user: any, index: number) => {
                     return (
-                      <Link href={`/chat/${user._id}`} key={`userCard-${index}`}>
-                        <div
-                          className="flex flex-row cursor-pointer p-2 py-5 rounded-lg w-full border-[1px] border-[#E8EDF2] dark:border-[#313442] bg-[#F5F5A] dark:bg-[bg-[#F5F5A] #[0F0F12]"
-                        >
-                          <div className="flex space-x-4 w-full">
+                      <Link
+                        href={`/chat/${user._id}`}
+                        key={`chatTextCardPageUser-${index}-${user._id}`}
+                      >
+                        <div className="flex flex-row cursor-pointer p-2 py-3 px-5 rounded-lg w-full border-[1px] border-[#E8EDF2] dark:border-[#313442] bg-[#F5F5A] dark:bg-[bg-[#F5F5A] #[0F0F12]">
+                          <div className="flex space-x-4 items-center w-full">
                             <UserIcon
                               userName={user.userName}
                               avatar={user.avatar}
                             />
-                            <div className="flex-1 space-y-2 py-1">
-                              <div className="grid grid-cols-4 gap-4">
-                                <p className="col-span-2 text-[#07070C] dark:text-[#F1F1F1] font-medium">
-                                  {user.userName}
+                            <div className="flex-1 py-1">
+                              <div className="flex flex-row  justify-between items-center">
+                                <div>
+                                  <p className="col-span-2 text-[#07070C] dark:text-[#F1F1F1] font-medium inline-block">
+                                    {user.userName}
+                                  </p>
+                                  {user.unseenMessagesCount > 0 && (
+                                    <p className="text-[#FFFFFF] inline-block p-1 px-[.5em] bg-[#E23738] rounded-md text-[12px] ml-2">
+                                      {user.unseenMessagesCount}
+                                    </p>
+                                  )}
+                                </div>
+                                <p className="col-span-2 text-[#9A9AAF] dark:text-[#64646F] text-[12px]">
+                                  {new Date(
+                                    user.lastMessageTime
+                                  ).toLocaleTimeString("en-US", {
+                                    hour12: true,
+                                    hour: "numeric",
+                                    minute: "numeric",
+                                    hourCycle: "h24",
+                                    timeZone:
+                                      Intl.DateTimeFormat().resolvedOptions()
+                                        .timeZone,
+                                  })}
                                 </p>
-                                <div className="col-span-1"></div>
-                                <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
                               </div>
                               <div className="space-y-3">
                                 <div className="grid grid-cols-5 gap-4">
-                                  <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-3"></div>
-                                  <div className="col-span-1"></div>
-                                  <div className="h-2 bg-slate-500 dark:bg-slate-700 rounded col-span-1"></div>
+                                  <p className="col-span-2 text-[#9A9AAF] dark:text-[#64646F] text-[12px]">
+                                    {user.lastMessage.length > 10
+                                      ? user.lastMessage.slice(0, 10) + "..."
+                                      : user.lastMessage}
+                                  </p>
                                 </div>
                               </div>
                             </div>

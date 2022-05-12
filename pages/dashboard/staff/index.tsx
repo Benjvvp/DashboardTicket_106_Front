@@ -54,6 +54,7 @@ const Staff: NextPage = () => {
       }
 
       if(id === userData._id){
+        console.log('asd')
         logoutUser();
         router.push("/auth/login");
       }
@@ -88,7 +89,7 @@ const Staff: NextPage = () => {
   useEffect(() => {
     checkToken();
     initializeGetUsers();
-  }, [generalStaffUsers, adminUsers]);
+  }, [generalStaffUsers, adminUsers, userIdToDelete]);
   return (
     <div className="bg-[#E8EDF2] mt-[100px] h-full min-h-screen dark:bg-[#0F0F12]">
       <Head>

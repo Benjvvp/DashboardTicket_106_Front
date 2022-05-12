@@ -43,9 +43,9 @@ export default function ActionsButtons(props: ActionsButtonsProps) {
                 />
                 <div className="w-10 h-4 bg-[#C6CBD9] dark:bg-[#2C2C35] rounded-full shadow-inner shadow-2xl"></div>
                 {theme === "light" ? (
-                  <div className="dot absolute w-6 h-6 bg-[#7364DB] rounded-full shadow -left-1 -top-1 transition"></div>
+                  <div className="dot absolute w-6 h-6 bg-[#7364DB] rounded-full shadow right-0 -top-1 transition"></div>
                 ) : (
-                  <div className="dot absolute w-6 h-6 bg-[#7364DB] rounded-full shadow -top-1 transition right-0"></div>
+                  <div className="dot absolute w-6 h-6 bg-[#7364DB] rounded-full shadow -left-1 -top-1 transition "></div>
                 )}
               </div>
             </label>

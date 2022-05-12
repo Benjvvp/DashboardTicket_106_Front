@@ -26,7 +26,7 @@ export default function LargeUserCard(props: LargeUserCardProps) {
 
   useEffect(() => {
     props.setUserIdToDelete(_id);
-  });
+  }, [_id]);
 
   return (
     <div className="flex flex-row w-full h-full rounded-xl bg-white dark:bg-[#1F2128] border-[1px] border-[#E8EDF2] dark:border-[#313442] p-5 mt-5 px-5 items-center">
@@ -68,6 +68,7 @@ export default function LargeUserCard(props: LargeUserCardProps) {
           width={3}
           onClick={() => {
             setDropDownOptions(!dropDownOptions);
+            props.setUserIdToDelete(_id);
           }}
         />
         <div
@@ -77,7 +78,7 @@ export default function LargeUserCard(props: LargeUserCardProps) {
           onMouseLeave={() => setDropDownOptions(false)}
         >
           <div className="inline-flex flex-col">
-            <Link href={`/dashboard/staff/${props._id}`}>
+            <Link href={`/dashboard/staff/${_id}`}>
               <a className="block mx-auto text-[14px] text-[#7E7E8F] dark:text-[#8B8B93] hover:bg-[#F5F5FA] hover:text-[#07070C] dark:hover:bg-[#0F0F12] dark:hover:text-[#fff] py-3 px-5 rounded-[8px] cursor-pointer">
                 Edit
               </a>

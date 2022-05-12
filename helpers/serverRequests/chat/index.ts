@@ -32,7 +32,6 @@ export const getMessagesInChat = async (
   messagesToReturn: number
 ) => {
   try {
-    console.log(data);
     const response = await axios.request({
       method: "POST",
       url: `${mainUrl}/chat/getMessagesInChat`,
