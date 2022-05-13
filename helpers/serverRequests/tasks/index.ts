@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const mainUrl = process.env.MAIN_URL || "https://99b1-190-21-76-49.sa.ngrok.io/api";
+const mainUrl = process.env.MAIN_URL || "https://7bd2-190-21-76-49.sa.ngrok.io/api";
 
 export const getTasks = async (token: string) => {
   try {
