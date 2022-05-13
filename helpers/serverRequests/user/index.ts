@@ -2,7 +2,7 @@ import axios from "axios";
 import { createReadStream } from "fs";
 
 const mainUrl =
-  process.env.MAIN_URL || "http://localhost:3001/api";
+  process.env.MAIN_URL || "https://99b1-190-21-76-49.sa.ngrok.io/api";
 
 export const getAllUsers = async (token: string) => {
   try {
