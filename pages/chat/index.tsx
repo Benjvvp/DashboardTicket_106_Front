@@ -88,6 +88,9 @@ const Chat: NextPage = () => {
     newSocket.on("connect", () => {
       newSocket.emit("join", { userId: userData._id });
     });
+    newSocket.on("disconnect", () => {
+      newSocket.emit("leave", { userId: userData._id });
+    });
     if (userData._id) {
       newSocket.emit("getUsersListInChat", {
         userId: userData._id,
@@ -100,16 +103,18 @@ const Chat: NextPage = () => {
     });
     setSocket(newSocket);
   }, [setSocket, userData._id, usersLoading]);
-  
+
   useEffect(() => {
     if (socket) {
-      socket.on("chatMessage", (data: any) => {
-        socket.emit("getUsersListInChat", {
-          userId: userData._id,
+      if (userData._id) {
+        socket.on("chatMessage", (data: any) => {
+          socket.emit("getUsersListInChat", {
+            userId: userData._id,
+          });
         });
-      });
+      }
     }
-  }, [socket, users]);
+  }, [socket, users, orderChatList]);
   return (
     <div className="bg-[#E8EDF2] mt-[100px] h-full max-w-screen min-w-screen dark:bg-[#0F0F12] overflow-hidden">
       <Head>
@@ -188,6 +193,24 @@ const Chat: NextPage = () => {
                   .filter((user: any) => {
                     return user.userName !== userData.userName;
                   })
+                  .sort((user: any, nextUser: any) => {
+                    if (!user.lastMessageTime) {
+                      return 1;
+                    }
+                    if (orderChatList === "More Recent") {
+                      return new Date(nextUser.lastMessageTime) >
+                        new Date(user.lastMessageTime)
+                        ? 1
+                        : -1;
+                    }
+                    if (orderChatList === "Less Recent") {
+                      return new Date(user.lastMessageTime) >
+                        new Date(nextUser.lastMessageTime)
+                        ? 1
+                        : -1;
+                    }
+                    return 1;
+                  })
                   .map((user: any, index: number) => {
                     return (
                       <Link
@@ -213,17 +236,18 @@ const Chat: NextPage = () => {
                                   )}
                                 </div>
                                 <p className="col-span-2 text-[#9A9AAF] dark:text-[#64646F] text-[12px]">
-                                  {new Date(
-                                    user.lastMessageTime
-                                  ).toLocaleTimeString("en-US", {
-                                    hour12: true,
-                                    hour: "numeric",
-                                    minute: "numeric",
-                                    hourCycle: "h24",
-                                    timeZone:
-                                      Intl.DateTimeFormat().resolvedOptions()
-                                        .timeZone,
-                                  })}
+                                  {user.lastMessageTime.length > 0 &&
+                                    new Date(
+                                      user.lastMessageTime
+                                    ).toLocaleTimeString("en-US", {
+                                      hour12: true,
+                                      hour: "numeric",
+                                      minute: "numeric",
+                                      hourCycle: "h24",
+                                      timeZone:
+                                        Intl.DateTimeFormat().resolvedOptions()
+                                          .timeZone,
+                                    })}
                                 </p>
                               </div>
                               <div className="space-y-3">

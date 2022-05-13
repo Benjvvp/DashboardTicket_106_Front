@@ -199,7 +199,7 @@ const ChatUser: NextPage = () => {
   useEffect(() => {
     checkToken();
     if (router.isReady) {
-      if(users){
+      if (users) {
         getUserById(idUserParam);
       }
     }
@@ -230,7 +230,28 @@ const ChatUser: NextPage = () => {
     newSocket.on("disconnect", () => {
       newSocket.emit("leave", { userId: userData._id });
     });
-    if (userChat._id && userData._id) {
+    if (userData._id) {
+      newSocket.emit("getUsersListInChat", {
+        userId: userData._id,
+      });
+    }
+    newSocket.on("getUsersListInChat", (data: any) => {
+      console.log(data);
+      setUsers(data.usersList);
+      setUsersLoading(false);
+    });
+    newSocket.on("loadMessages", (data: any) => {
+      setMessages(data.messages);
+      setMessagesLoading(false);
+    });
+    newSocket.on("getUsersListInChat", (data: any) => {
+      setUsers(data.usersList);
+      setUsersLoading(false);
+      data.usersList.forEach((user: any) => {
+        setMessagesCount(messagesCount + user.messagesCount);
+      });
+    });
+    if (userData && userChat) {
       newSocket.emit("loadMessages", {
         userId: userData._id,
         senderId: userChat._id,
@@ -239,43 +260,38 @@ const ChatUser: NextPage = () => {
         userId: userData._id,
       });
     }
-    newSocket.on("loadMessages", (data: any) => {
-      setMessages(data.messages);
-      setMessagesLoading(false);
-    });
-    newSocket.on("getUsersListInChat", (data: any) => {
-      setUsers(data.usersList);
-      setUsersLoading(false);
-      data.usersList.forEach((user:any) => {
-        setMessagesCount(messagesCount + user.messagesCount);
-      })
-    });
-    newSocket.on("chatMessage", (data: any) => {
-      setMessages([...messages, data]);
-    });
-
     setSocket(newSocket);
-  }, [setSocket, userData._id, userChat._id, usersLoading]);
-  //Chat scroll
+  }, [setSocket, userData._id, usersLoading]);
+
+/*   useEffect(() => {
+    if (userChat._id && userData._id) {
+      socket?.on("chatMessage", (data: any) => {
+        const tempMessages = [...messages, data];
+        setMessages(tempMessages);
+        if (chatRef.current) {
+          chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
+        }
+      });
+      socket?.emit("chatSeen", {
+        userId: userData._id,
+        senderId: userChat._id,
+      });
+      socket?.on("chatSeen", () => {
+        const newMessages = [...messages];
+        newMessages.forEach((message) => {
+          if (message.sender === userChat._id) {
+            message.seen = true;
+          }
+        });
+        setMessages(newMessages);
+      });
+    }
+  }, [messages, setMessages, userChat._id, userData._id, socket]); */
   useEffect(() => {
     if (chatRef.current) {
       chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
     }
-    socket?.emit("chatSeen", {
-      userId: userData._id,
-      senderId: userChat._id,
-    });
-    socket?.on("chatSeen", () => {
-      //Update messages seen
-      const newMessages = [...messages];
-      newMessages.forEach((message) => {
-        if (message.sender === userChat._id) {
-          message.seen = true;
-        }
-      });
-      setMessages(newMessages);
-    });
-  }, [messages, setMessages]);
+  }, [setMessages]);
   return (
     <div className="bg-[#E8EDF2] mt-[100px] h-full max-w-screen min-w-screen dark:bg-[#0F0F12] overflow-hidden">
       <Head>
@@ -354,6 +370,24 @@ const ChatUser: NextPage = () => {
                   .filter((user: any) => {
                     return user.userName !== userData.userName;
                   })
+                  .sort((user: any, nextUser: any) => {
+                    if (!user.lastMessageTime) {
+                      return 1;
+                    }
+                    if (orderChatList === "More Recent") {
+                      return new Date(nextUser.lastMessageTime) >
+                        new Date(user.lastMessageTime)
+                        ? 1
+                        : -1;
+                    }
+                    if (orderChatList === "Less Recent") {
+                      return new Date(user.lastMessageTime) >
+                        new Date(nextUser.lastMessageTime)
+                        ? 1
+                        : -1;
+                    }
+                    return 1;
+                  })
                   .map((user: any, index: number) => {
                     return (
                       <Link
@@ -379,24 +413,25 @@ const ChatUser: NextPage = () => {
                                   )}
                                 </div>
                                 <p className="col-span-2 text-[#9A9AAF] dark:text-[#64646F] text-[12px]">
-                                  {new Date(
-                                    user.lastMessageTime
-                                  ).toLocaleTimeString("en-US", {
-                                    hour12: true,
-                                    hour: "numeric",
-                                    minute: "numeric",
-                                    hourCycle: "h24",
-                                    timeZone:
-                                      Intl.DateTimeFormat().resolvedOptions()
-                                        .timeZone,
-                                  })}
+                                  {user.lastMessageTime.length > 0 &&
+                                    new Date(
+                                      user.lastMessageTime
+                                    ).toLocaleTimeString("en-US", {
+                                      hour12: true,
+                                      hour: "numeric",
+                                      minute: "numeric",
+                                      hourCycle: "h24",
+                                      timeZone:
+                                        Intl.DateTimeFormat().resolvedOptions()
+                                          .timeZone,
+                                    })}
                                 </p>
                               </div>
                               <div className="space-y-3">
-                                <div className="grid grid-cols-5 gap-4">
-                                  <p className="col-span-2 text-[#9A9AAF] dark:text-[#64646F] text-[12px]">
-                                    {user.lastMessage.length > 10
-                                      ? user.lastMessage.slice(0, 10) + "..."
+                                <div className="block w-full">
+                                  <p className="text-[#9A9AAF] dark:text-[#64646F] text-[12px]">
+                                    {user.lastMessage.length > 20
+                                      ? user.lastMessage.slice(0, 20) + "..."
                                       : user.lastMessage}
                                   </p>
                                 </div>
