@@ -84,7 +84,7 @@ const Chat: NextPage = () => {
 
   useEffect(() => {
     checkToken();
-    const newSocket = io("ws://localhost:3001");
+    const newSocket = io("https://ada4-190-21-76-49.sa.ngrok.io/api");
     newSocket.on("connect", () => {
       newSocket.emit("join", { userId: userData._id });
     });

@@ -223,7 +223,7 @@ const ChatUser: NextPage = () => {
   ]);
   //Socket
   useEffect(() => {
-    const newSocket = io("ws://localhost:3001");
+    const newSocket = io("https://ada4-190-21-76-49.sa.ngrok.io");
     newSocket.on("connect", () => {
       newSocket.emit("join", { userId: userData._id });
     });
