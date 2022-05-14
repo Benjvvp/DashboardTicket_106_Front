@@ -1,15 +1,17 @@
 import axios, { AxiosError } from "axios";
 import { clearLocalStorage } from "../../localStorage";
 
-const mainUrl = process.env.MAIN_URL || "https://ada4-190-21-76-49.sa.ngrok.io/api";
+const mainUrl = process.env.MAIN_URL || "https://4189-190-21-76-49.sa.ngrok.io/api";
 
 export const loginUser = async (data: { email: string; password: string }) => {
   try {
+    console.log("loginUser", data);
     const response = await axios.request({
       method: "post",
       url: `${mainUrl}/auth/login`,
       data,
     });
+    console.log(response)
     return response;
   } catch (err: any) {
     return {

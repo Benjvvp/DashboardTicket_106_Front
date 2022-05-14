@@ -38,8 +38,9 @@ const Login: NextPage = () => {
       try {
         const data: loginFormType = loginForm;
         const response = await loginUser(data);
-        const token = response.data.token;
+
         if (response.status === 200) {
+          const token = response.data.token;
           saveItem("token", token)
           setIsLoggedIn(true);
           setUserData(response.data.user);
