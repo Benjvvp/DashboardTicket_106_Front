@@ -34,7 +34,6 @@ const Login: NextPage = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    //Check all errors
     if (errorEmail === "" && errorPassword === "") {
       try {
         const data: loginFormType = loginForm;

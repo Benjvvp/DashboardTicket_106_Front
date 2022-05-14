@@ -45,7 +45,6 @@ const Register: NextPage = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    //Check all errors
     if (
       errorAuthCode === "" &&
       errorEmail === "" &&

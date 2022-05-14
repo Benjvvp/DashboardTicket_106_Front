@@ -43,7 +43,7 @@ export default function TaskLargeListCards(props: TaskCardProps) {
 
       const response = await getTasks(token);
       if (response.status === 200) {
-        //Sort tasks by date
+        
         const sortedTasks = response.data.tasks.sort(
           (a: LargeTaskCardProps, b: LargeTaskCardProps) => {
             return (

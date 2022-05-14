@@ -32,7 +32,7 @@ export default function TaskFormModal(props: propsTaskFormModal) {
       createTaskValues.title.length < 5 ||
       createTaskValues.description.length < 5
     ) return;
-    //Check all errors
+    
     if (projectNameError === "" && projectDescriptionError === "") {
       try {
         let token = await JSON.parse(await getItem("token"));

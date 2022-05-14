@@ -111,7 +111,8 @@ export function TextAreaInput(props: propsTextAreaInput) {
       <textarea
         name={props.name}
         id={props.id}
-        className={`${styles.inputText} h-[${props.height}] resize-none focus:outline focus:outline-1 focus:outline-[#B2A7FF] dark:bg-transparent dark:text-white dark:placeholder-[#2C2C35] dark:border-t-[1px] dark:border-[#313442] ${props.classNameInput}`}
+        className={`${styles.inputText} resize-none focus:outline focus:outline-1 focus:outline-[#B2A7FF] dark:bg-transparent dark:text-white dark:placeholder-[#2C2C35] dark:border-t-[1px] dark:border-[#313442] ${props.classNameInput}`}
+        style={{ height: props.height }}
         placeholder={props.placeholder}
         onChange={props.onChange}
         required={props.required}

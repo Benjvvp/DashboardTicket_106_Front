@@ -221,7 +221,6 @@ const ChatUser: NextPage = () => {
     messagesLoading,
     getMessagesInChat,
   ]);
-  //Socket
   useEffect(() => {
     const newSocket = io("https://ada4-190-21-76-49.sa.ngrok.io");
     newSocket.on("connect", () => {
@@ -263,7 +262,7 @@ const ChatUser: NextPage = () => {
     setSocket(newSocket);
   }, [setSocket, userData._id, usersLoading]);
 
-/*   useEffect(() => {
+useEffect(() => {
     if (userChat._id && userData._id) {
       socket?.on("chatMessage", (data: any) => {
         const tempMessages = [...messages, data];
@@ -286,7 +285,7 @@ const ChatUser: NextPage = () => {
         setMessages(newMessages);
       });
     }
-  }, [messages, setMessages, userChat._id, userData._id, socket]); */
+  }, [messages, setMessages, userChat._id, userData._id, socket]);
   useEffect(() => {
     if (chatRef.current) {
       chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
@@ -489,7 +488,6 @@ const ChatUser: NextPage = () => {
               style={{ maxHeight: "100%" }}
               ref={chatRef}
               onScroll={(e) => {
-                //Check if user is at the top of the chat and if so, load more messages from the server
                 if (e.currentTarget.scrollTop === 0 && !messagesLoading) {
                   console.log("Loading more messages");
                   setMessagesToShow(messagesToShow + 100);
@@ -576,7 +574,6 @@ const ChatUser: NextPage = () => {
                                 </p>
                                 <p className="text-[#9A9AAF] dark:text-[#64646F] text-[12px]">
                                   {
-                                    //Date format to client side to show the time
                                     new Date(message.createdAt)
                                       .toLocaleTimeString("en-US", {
                                         hour12: true,

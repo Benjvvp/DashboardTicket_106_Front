@@ -136,7 +136,6 @@ export default function SmallTaskCard(props: SmallTaskCardProps) {
     if (props.assignedUsers.length > 0) getAssignedUsers();
   }, [assignedUsers]);
 
-  //Data dougnut porcentage and add label progress
   const chartData = [progress, 100 - progress];
   const showData = chartData[0] + "%";
   const data = {
@@ -162,7 +161,6 @@ export default function SmallTaskCard(props: SmallTaskCardProps) {
       ctx.font = "bold 14px Poppins";
       ctx.fillStyle = "#8B8B93";
       ctx.textAlign = "center";
-      //draw text center
       ctx.fillText(showData, left + width / 2, top + height / 2 + 4);
     },
   };
