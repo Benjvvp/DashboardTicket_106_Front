@@ -146,17 +146,17 @@ const TaskEdit: NextPage = () => {
       </Head>
       <TopBar isLarge showLogo />
       <div className="w-[100%] mt-[100px] block relative h-full min-h-[89vh] p-[3em] px-[10%]">
-        <PageTitle
-          title="Task details"
-          addBreadcrumb
-          linksBreadcrumb={[
-            {
-              Name: "Home",
-              Url: "/",
-              icon: "/svg/home-2.svg",
-            },
-          ]}
-        />
+          <PageTitle
+            title="Task details"
+            addBreadcrumb
+            linksBreadcrumb={[
+              {
+                Name: "Home",
+                Url: "/",
+                icon: "/svg/home-2.svg",
+              },
+            ]}
+          />
         <div className="flex flex-row w-full h-full py-10 px-10 bg-white rounded-xl border-[1px] border-[#E8EDF2] dark:bg-[#1F2128] dark:border-[#313442] mt-[5%]">
           <div className="flex flex-col w-full h-full justify-center items-center gap-5">
             <div className="flex flex-col h-full gap-2 w-full px-5 xl:px-10">
@@ -295,20 +295,23 @@ const TaskEdit: NextPage = () => {
                   >
                     Progress
                   </label>
-                  <RangeInput
-                    name="Progress"
-                    value={parseInt(taskEdit.progress)}
-                    onChange={(e) =>
-                      setTaskEdit({
-                        ...taskEdit,
-                        progress: e.target.value,
-                      })
-                    }
-                    classNameInput="dark:placeholder-[#64646F] text-[14px] text-[#9A9AAF] dark:text-[#64646F]"
-                    min={0}
-                    max={100}
-                    step={1}
-                  />
+                  <div className="flex flex-row">
+                    <RangeInput
+                      name="Progress"
+                      value={parseInt(taskEdit.progress)}
+                      onChange={(e) =>
+                        setTaskEdit({
+                          ...taskEdit,
+                          progress: e.target.value,
+                        })
+                      }
+                      classNameInput="dark:placeholder-[#64646F] text-[14px] text-[#9A9AAF] dark:text-[#64646F]"
+                      min={0}
+                      max={100}
+                      step={1}
+                    />
+                    <p className="text-md text-[#07070C] dark:text-white font-medium">{taskEdit.progress}</p>
+                  </div>
                 </div>
               </div>
               <div className="mt-10 flex flex-row flex-wrap gap-3 items-center w-full h-full justify-start">

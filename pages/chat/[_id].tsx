@@ -97,6 +97,7 @@ const ChatUser: NextPage = () => {
       };
       socket?.emit("chatSubmitMessage", data);
       setInputMessage("");
+      chatRef.current?.scrollTo(0, chatRef.current?.scrollHeight);
     }
   };
 
@@ -222,35 +223,17 @@ const ChatUser: NextPage = () => {
     getMessagesInChat,
   ]);
   useEffect(() => {
-    const newSocket = io("https://ada4-190-21-76-49.sa.ngrok.io");
+    const newSocket = io("https://1425-190-21-76-49.sa.ngrok.io");
     newSocket.on("connect", () => {
       newSocket.emit("join", { userId: userData._id });
     });
     newSocket.on("disconnect", () => {
       newSocket.emit("leave", { userId: userData._id });
     });
-    if (userData._id) {
+    if (userData._id && userChat._id) {
       newSocket.emit("getUsersListInChat", {
         userId: userData._id,
       });
-    }
-    newSocket.on("getUsersListInChat", (data: any) => {
-      console.log(data);
-      setUsers(data.usersList);
-      setUsersLoading(false);
-    });
-    newSocket.on("loadMessages", (data: any) => {
-      setMessages(data.messages);
-      setMessagesLoading(false);
-    });
-    newSocket.on("getUsersListInChat", (data: any) => {
-      setUsers(data.usersList);
-      setUsersLoading(false);
-      data.usersList.forEach((user: any) => {
-        setMessagesCount(messagesCount + user.messagesCount);
-      });
-    });
-    if (userData && userChat) {
       newSocket.emit("loadMessages", {
         userId: userData._id,
         senderId: userChat._id,
@@ -259,18 +242,29 @@ const ChatUser: NextPage = () => {
         userId: userData._id,
       });
     }
-    setSocket(newSocket);
-  }, [setSocket, userData._id, usersLoading]);
-
-useEffect(() => {
-    if (userChat._id && userData._id) {
-      socket?.on("chatMessage", (data: any) => {
-        const tempMessages = [...messages, data];
-        setMessages(tempMessages);
-        if (chatRef.current) {
-          chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
-        }
+    newSocket.on("getUsersListInChat", (data: any) => {
+      setUsers(data.usersList);
+      setUsersLoading(false);
+    });
+    newSocket.on("loadMessages", (data: any) => {
+      setMessages(data.messages);
+      setMessagesLoading(false);
+      if (chatRef.current) {
+        chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
+      }
+    });
+    newSocket.on("getUsersListInChat", (data: any) => {
+      setUsers(data.usersList);
+      setUsersLoading(false);
+      data.usersList.forEach((user: any) => {
+        setMessagesCount(messagesCount + user.messagesCount);
       });
+    });
+    setSocket(newSocket);
+  }, [setSocket, userData._id, usersLoading, userChat._id]);
+
+  useEffect(() => {
+    if (userChat._id && userData._id) {
       socket?.emit("chatSeen", {
         userId: userData._id,
         senderId: userChat._id,
@@ -284,13 +278,22 @@ useEffect(() => {
         });
         setMessages(newMessages);
       });
+      socket?.on(
+        "newMessage",
+        (data: {
+          message: string;
+          sender: string;
+          user: string;
+          createdAt: Date;
+          seen: Boolean;
+        }) => {
+          const newMessages = [...messages];
+          newMessages.push(data);
+          setMessages(newMessages);
+        }
+      );
     }
   }, [messages, setMessages, userChat._id, userData._id, socket]);
-  useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
-    }
-  }, [setMessages]);
   return (
     <div className="bg-[#E8EDF2] mt-[100px] h-full max-w-screen min-w-screen dark:bg-[#0F0F12] overflow-hidden">
       <Head>
@@ -514,7 +517,7 @@ useEffect(() => {
                         new Date(messages[index - 1].createdAt).getDate();
 
                     return (
-                      <>
+                      <div key={`${index}-MessageDiv`}>
                         {separatorForDiferentDate && (
                           <div
                             className="flex flex-col justify-center"
@@ -573,20 +576,18 @@ useEffect(() => {
                                     : userChat.userName}
                                 </p>
                                 <p className="text-[#9A9AAF] dark:text-[#64646F] text-[12px]">
-                                  {
-                                    new Date(message.createdAt)
-                                      .toLocaleTimeString("en-US", {
-                                        hour12: true,
-                                        hour: "numeric",
-                                        minute: "numeric",
-                                        hourCycle: "h24",
-                                        timeZone:
-                                          Intl.DateTimeFormat().resolvedOptions()
-                                            .timeZone,
-                                      })
-                                      .split(" ")
-                                      .join("")
-                                  }
+                                  {new Date(message.createdAt)
+                                    .toLocaleTimeString("en-US", {
+                                      hour12: true,
+                                      hour: "numeric",
+                                      minute: "numeric",
+                                      hourCycle: "h24",
+                                      timeZone:
+                                        Intl.DateTimeFormat().resolvedOptions()
+                                          .timeZone,
+                                    })
+                                    .split(" ")
+                                    .join("")}
                                 </p>
                               </div>
                             </div>
@@ -615,7 +616,7 @@ useEffect(() => {
                             </div>
                           </div>
                         </div>
-                      </>
+                      </div>
                     );
                   }
                 )

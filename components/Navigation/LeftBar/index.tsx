@@ -49,7 +49,7 @@ export default function LeftBar(props: LeftBarProps) {
     },
     {
       name: "Files",
-      href: "/",
+      href: "/dashboard/files",
       active: activeLink === 2,
       icon: <DocumentTextIcon isDark={isDark(activeLink === 2, theme)} isHover={isHover === 2} />,
     },

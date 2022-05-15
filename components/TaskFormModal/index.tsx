@@ -48,6 +48,9 @@ export default function TaskFormModal(props: propsTaskFormModal) {
             category: "Other",
             priority: "Low",
           });
+          setTimeout(() => {
+            setSucessCreateTask(false);
+          }, 2000);
         }
         if (response.status === 400) {
           if(response.data.message === "Task already exists."){
@@ -117,7 +120,7 @@ export default function TaskFormModal(props: propsTaskFormModal) {
                   category: "Other",
                   priority: "Low",
                 });
-                  
+                setSucessCreateTask(false);
               }}
             >
               <svg

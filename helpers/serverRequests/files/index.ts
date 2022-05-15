@@ -1,44 +1,20 @@
 import axios, { AxiosError } from "axios";
 import { clearLocalStorage } from "../../localStorage";
 
-const mainUrl = process.env.MAIN_URL || "https://1425-190-21-76-49.sa.ngrok.io/api";
+const mainUrl =
+  process.env.MAIN_URL || "https://1425-190-21-76-49.sa.ngrok.io/api";
 
-export const loginUser = async (data: { email: string; password: string }) => {
+export const getFilesAverageType = async (token: string) => {
   try {
     const response = await axios.request({
-      method: "post",
-      url: `${mainUrl}/auth/login`,
-      data,
-    });
-    console.log(response)
-    return response;
-  } catch (err: any) {
-    return {
-      status: err.response.status,
-      data: {
-        message: err.response.data.message,
-      },
-    };
-  }
-};
-
-export const loginWithToken = async (token: string) => {
-  try {
-    const response = await axios.request({
-      method: "post",
-      url: `${mainUrl}/auth/loginWithToken`,
+      method: "get",
+      url: `${mainUrl}/files/getFilesAverageType`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     return response;
   } catch (err: any) {
-    console.log({
-      status: err.response.status,
-      data: {
-        message: err.response.data.message,
-      },
-    });
     return {
       status: err.response.status,
       data: {
@@ -48,18 +24,37 @@ export const loginWithToken = async (token: string) => {
   }
 };
 
-export const registerUser = async (data: {
-  email: string;
-  password: string;
-  passwordConfirmation: string;
-  userName: string;
-  AuthCode: string;
-}) => {
+export const getFolders = async (token: string) => {
+  try {
+    const response = await axios.request({
+      method: "get",
+      url: `${mainUrl}/files/getFolders`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  } catch (err: any) {
+    return {
+      status: err.response.status,
+      data: {
+        message: err.response.data.message,
+      },
+    };
+  }
+};
+
+export const createFolder = async (token: string, folderName: string) => {
   try {
     const response = await axios.request({
       method: "post",
-      url: `${mainUrl}/auth/register`,
-      data,
+      url: `${mainUrl}/files/createFolder`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: {
+        folderName,
+      },
     });
     return response;
   } catch (err: any) {

@@ -144,7 +144,7 @@ const Register: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
         <DefaultSEO />
       </Head>
-      <TopBar onlyLogo showActionButton useNormalActionsButtons />
+      <TopBar onlyLogo showLogo showActionButton useNormalActionsButtons />
       <div className="h-full py-10 flex items-center justify-center">
         <div className="max-w-md w-full space-y-2 border border-[#E8EDF2] rounded-2xl bg-[#ffffff] py-12 px-4 sm:px-6 lg:px-8 dark:bg-[#1F2128] dark:border-[#313442]">
           <div>

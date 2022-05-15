@@ -84,7 +84,7 @@ const Chat: NextPage = () => {
 
   useEffect(() => {
     checkToken();
-    const newSocket = io("https://ada4-190-21-76-49.sa.ngrok.io/api");
+    const newSocket = io("https://1425-190-21-76-49.sa.ngrok.io");
     newSocket.on("connect", () => {
       newSocket.emit("join", { userId: userData._id });
     });
@@ -97,7 +97,7 @@ const Chat: NextPage = () => {
       });
     }
     newSocket.on("getUsersListInChat", (data: any) => {
-      console.log(data);
+      console.log(data)
       setUsers(data.usersList);
       setUsersLoading(false);
     });

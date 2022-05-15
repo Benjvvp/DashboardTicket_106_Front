@@ -48,7 +48,7 @@ export default function TopBar(props: TopBarProps) {
     },
     {
       name: "Files",
-      href: "/",
+      href: "/dashboard/files",
     },
     {
       name: "Chat",
