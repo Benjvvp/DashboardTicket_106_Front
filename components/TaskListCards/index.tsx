@@ -40,7 +40,7 @@ export default function TaskCard(props: TaskCardProps) {
 
   const initializeGetTasks = async () => {
     try {
-      let token = await JSON.parse(await getItem("token"));
+      const token = await JSON.parse(await getItem("token"));
 
       const response = await getTasks(token);
       if (response.status === 200) {
@@ -61,7 +61,7 @@ export default function TaskCard(props: TaskCardProps) {
 
   const deleteTaskFunction = async (taskId: string) => {
     try {
-      let token = await JSON.parse(await getItem("token"));
+      const token = await JSON.parse(await getItem("token"));
       const response = await deleteTask(token, taskId);
       if (response.status === 200) {
         if (response.data.isError === false) {

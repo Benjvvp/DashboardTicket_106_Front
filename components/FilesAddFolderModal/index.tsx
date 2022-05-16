@@ -31,7 +31,7 @@ export default function FilesAddFolderModal(props: FilesAddFolderModal) {
         setFolderNameError("Folder name is required");
         return;
       }
-      let token = await JSON.parse(await getItem("token"));
+      const token = await JSON.parse(await getItem("token"));
       const response = await createFolder(token, folderName);
       if (response.status === 200) {
         if (response.data.isError === false) {

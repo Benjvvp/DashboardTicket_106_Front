@@ -77,7 +77,7 @@ const TaskEdit: NextPage = () => {
 
   const deleteTaskFunction = async (taskId: string) => {
     try {
-      let token = await JSON.parse(await getItem("token"));
+      const token = await JSON.parse(await getItem("token"));
       const response = await deleteTask(token, taskId);
       if (response.status === 200) {
         if (response.data.isError === false) {
@@ -96,7 +96,7 @@ const TaskEdit: NextPage = () => {
 
   const updateTaskFunction = async (taskId: string) => {
     try {
-      let token = await JSON.parse(await getItem("token"));
+      const token = await JSON.parse(await getItem("token"));
       const response = await editTask(token, taskId, {
         title: taskEdit.title,
         description: taskEdit.description,

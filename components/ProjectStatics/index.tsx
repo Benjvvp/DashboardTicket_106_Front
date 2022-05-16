@@ -14,7 +14,7 @@ export default function ProjectStatics() {
 
   const initializeGetTasks = async () => {
     try {
-      let token = await JSON.parse(await getItem("token"));
+      const token = await JSON.parse(await getItem("token"));
 
       const response = await getTasks(token);
       if (response.status === 200) {

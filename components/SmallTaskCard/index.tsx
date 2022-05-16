@@ -62,7 +62,7 @@ export default function SmallTaskCard(props: SmallTaskCardProps) {
 
   const getAssignedUsers = async () => {
     try {
-      let token = await JSON.parse(await getItem("token"));
+      const token = await JSON.parse(await getItem("token"));
       const response = await getAssignedImagesUsers(
         token,
         props.assignedUsers.join(",")
@@ -82,7 +82,7 @@ export default function SmallTaskCard(props: SmallTaskCardProps) {
 
   const getAuthorData = async () => {
     try {
-      let token = await JSON.parse(await getItem("token"));
+      const token = await JSON.parse(await getItem("token"));
       const response = await getUser(token, author);
       if (response.status === 200) {
         if (response.data.isError === false) {

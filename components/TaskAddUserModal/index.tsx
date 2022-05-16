@@ -38,7 +38,7 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
   const [usersInTask, setUsersInTask] = useState([]);
 
   const getUsersIdFromTask = async () => {
-    let token = await JSON.parse(await getItem("token"));
+    const token = await JSON.parse(await getItem("token"));
     const response = await getTask(token, props.idTask);
     if (response.status === 200) {
       if (response.data.isError === false) {
@@ -50,7 +50,7 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
   };
 
   const removeUserFromTask = async (idUser: string) => {
-    let token = await JSON.parse(await getItem("token"));
+    const token = await JSON.parse(await getItem("token"));
     const response = await removeUserToTask(token, props.idTask, idUser);
     if (response.status === 200) {
       if (response.data.isError === false) {
@@ -62,7 +62,7 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
   };
 
   const addUserFromTask = async (idUser: string) => {
-    let token = await JSON.parse(await getItem("token"));
+    const token = await JSON.parse(await getItem("token"));
     const response = await addUserToTask(token, props.idTask, idUser);
     if (response.status === 200) {
       if (response.data.isError === false) {
@@ -75,7 +75,7 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
 
   const getUsersFromId = async () => {
     if (usersIdInTask.length === 0) return;
-    let token = await JSON.parse(await getItem("token"));
+    const token = await JSON.parse(await getItem("token"));
     const response = await getUsers(token, usersIdInTask);
     if (response.status === 200) {
       if (response.data.isError === false) {
@@ -92,7 +92,7 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
   };
 
   const getAllUsersFromDB = async () => {
-    let token = await JSON.parse(await getItem("token"));
+    const token = await JSON.parse(await getItem("token"));
     const response = await getAllUsers(token);
     if (response.status === 200) {
       if (response.data.isError === false) {
@@ -109,7 +109,7 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
   };
 
   const getAuthor = async () => {
-    let token = await JSON.parse(await getItem("token"));
+    const token = await JSON.parse(await getItem("token"));
     const response = await getUser(token, userData._id);
     if (response.status === 200) {
       if (response.data.isError === false) {

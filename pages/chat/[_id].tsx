@@ -47,12 +47,12 @@ const ChatUser: NextPage = () => {
 
   const [isOpenLeftBar, setIsOpenLeftBar] = useState(true);
 
-  const [orderChatList, setOrderChatList] = useState<String>("More Recent");
-  const [chatListDropDown, setChatListDropDown] = useState<Boolean>(false);
+  const [orderChatList, setOrderChatList] = useState<string>("More Recent");
+  const [chatListDropDown, setChatListDropDown] = useState<boolean>(false);
 
   const [messagesCount, setMessagesCount] = useState<number>(0);
 
-  const [isLoad, setIsLoad] = useState<Boolean>(false);
+  const [isLoad, setIsLoad] = useState<boolean>(false);
 
   const [searchInput, setSearchInput] = useState("");
 
@@ -64,7 +64,7 @@ const ChatUser: NextPage = () => {
       user: string;
       sender: string;
       createdAt: Date;
-      seen: Boolean;
+      seen: boolean;
     }>
   >([]);
   const [messagesLoading, setMessagesLoading] = useState(true);
@@ -274,7 +274,7 @@ const ChatUser: NextPage = () => {
           sender: string;
           user: string;
           createdAt: Date;
-          seen: Boolean;
+          seen: boolean;
         }) => {
           const newMessages = [...messages];
           newMessages.push(data);
@@ -496,7 +496,7 @@ const ChatUser: NextPage = () => {
                       user: string;
                       sender: string;
                       createdAt: Date;
-                      seen: Boolean;
+                      seen: boolean;
                     },
                     index: number
                   ) => {

@@ -12,14 +12,14 @@ interface TaskCardProps {
 
 interface LargeTaskCardProps {
   _id: string;
-  title: String;
-  category: String;
+  title: string;
+  category: string;
   author: any;
   progress: number;
   createdAt: Date;
-  status: String;
+  status: string;
   assignedUsers: string[];
-  priority: String;
+  priority: string;
 
   setModalDeleteTask: (value: boolean) => void;
   setSuccessDeleteTask: (value: boolean) => void;
@@ -39,7 +39,7 @@ export default function TaskLargeListCards(props: TaskCardProps) {
 
   const initializeGetTasks = async () => {
     try {
-      let token = await JSON.parse(await getItem("token"));
+      const token = await JSON.parse(await getItem("token"));
 
       const response = await getTasks(token);
       if (response.status === 200) {
@@ -65,7 +65,7 @@ export default function TaskLargeListCards(props: TaskCardProps) {
 
   const deleteTaskFunction = async (taskId: string) => {
     try {
-      let token = await JSON.parse(await getItem("token"));
+      const token = await JSON.parse(await getItem("token"));
       const response = await deleteTask(token, taskId);
       if (response.data.isError === false) {
         setSuccessDeleteTask(true);

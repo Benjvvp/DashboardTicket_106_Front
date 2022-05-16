@@ -7,7 +7,7 @@ export default function NewActiveUsers() {
 
   const initializeGetUsers = async () => {
     try {
-      let token = await JSON.parse(await getItem("token"));
+      const token = await JSON.parse(await getItem("token"));
 
       const response = await getAllUsers(token);
       if (response.status === 200) {

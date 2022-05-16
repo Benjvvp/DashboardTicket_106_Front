@@ -35,8 +35,8 @@ const Chat: NextPage = () => {
 
   const [isOpenLeftBar, setIsOpenLeftBar] = useState(true);
 
-  const [orderChatList, setOrderChatList] = useState<String>("More Recent");
-  const [chatListDropDown, setChatListDropDown] = useState<Boolean>(false);
+  const [orderChatList, setOrderChatList] = useState<string>("More Recent");
+  const [chatListDropDown, setChatListDropDown] = useState<boolean>(false);
 
   const [messagesCount, setMessagesCount] = useState<number>(0);
 

@@ -47,7 +47,6 @@ const StaffEdit: NextPage = () => {
 
   const [errorUserName, setErrorUsername] = useState("");
   const [errorEmail, setErrorEmail] = useState("");
-  const [errorAvatar, setErrorAvatar] = useState("");
 
   const [sucessDeleteUser, setSucessDeleteUser] = useState(false);
   const [sucessEditUser, setSucessEditUser] = useState(false);

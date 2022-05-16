@@ -10,14 +10,14 @@ import UserIcon from "../UserIcon";
 
 interface LargeTaskCardProps {
   _id: string;
-  title: String;
-  category: String;
+  title: string;
+  category: string;
   author: any;
-  progress: Number;
+  progress: number;
   createdAt: Date;
-  status: String;
+  status: string;
   assignedUsers: string[];
-  priority: String;
+  priority: string;
 
   setModalDeleteTask: (value: boolean) => void;
   setSuccessDeleteTask: (value: boolean) => void;
@@ -45,7 +45,7 @@ export default function LargeTaskCard(props: LargeTaskCardProps) {
 
   const getAuthorData = async () => {
     try {
-      let token = await JSON.parse(await getItem("token"));
+      const token = await JSON.parse(await getItem("token"));
       const response = await getUser(token, author);
       if (response.status === 200) {
         if (response.data.isError === false) {
@@ -65,7 +65,7 @@ export default function LargeTaskCard(props: LargeTaskCardProps) {
 
   const getAssignedUsers = async () => {
     try {
-      let token = await JSON.parse(await getItem("token"));
+      const token = await JSON.parse(await getItem("token"));
       const response = await getAssignedImagesUsers(
         token,
         props.assignedUsers.join(",")

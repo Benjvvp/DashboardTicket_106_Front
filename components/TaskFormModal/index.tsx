@@ -36,7 +36,7 @@ export default function TaskFormModal(props: propsTaskFormModal) {
 
     if (projectNameError === "" && projectDescriptionError === "") {
       try {
-        let token = await JSON.parse(await getItem("token"));
+        const token = await JSON.parse(await getItem("token"));
         const response = await createTask(token, createTaskValues);
 
         if (response.status === 200) {

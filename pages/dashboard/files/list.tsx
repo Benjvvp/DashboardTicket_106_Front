@@ -27,13 +27,13 @@ const Chat: NextPage = () => {
   const [isModalActive, setIsModalActive] = useState(false);
 
   const checkToken = async () => {
-    let token = await JSON.parse(await getItem("token"));
+    const token = await JSON.parse(await getItem("token"));
     if (!token || token === undefined || token === "undefined")
       router.push("/auth/login");
   };
 
   const getFoldersFromServer = async () => {
-    let token = await JSON.parse(await getItem("token"));
+    const token = await JSON.parse(await getItem("token"));
     const response = await getFolders(token);
     if (response.status === 200) {
       if(response.data.isError === false){

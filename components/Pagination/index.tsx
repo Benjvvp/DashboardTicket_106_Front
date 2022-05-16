@@ -8,7 +8,7 @@ interface PaginationProps {
 }
 
 export default function Pagination(props: PaginationProps) {
-  let totalNumbers = [];
+  const totalNumbers = [];
   for (let i = 1; i <= props.count; i++) {
     totalNumbers.push(i);
   }
@@ -18,7 +18,7 @@ export default function Pagination(props: PaginationProps) {
   return (
     <div className="flex flex-row gap-10 items-center mt-5 pb-2">
       <div className="flex flex-row justify-between items-center">
-        {totalNumbers.map((count: Number, index: number) => {
+        {totalNumbers.map((count: number, index: number) => {
           if (index === currentPage - 1) {
             return (
               <div

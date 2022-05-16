@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 interface FooterProps {
-  isLarge?: Boolean;
+  isLarge?: boolean;
 }
 
 export default function Footer({ isLarge }: FooterProps) {
