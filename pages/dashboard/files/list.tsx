@@ -137,7 +137,7 @@ const Chat: NextPage = () => {
                   )
                 ) : (
                   <p className="text-[#7E7E8F] dark:text-[#8B8B93] text-[12px]">
-                    Doesn't exist any folder
+                    Doesn&#39;t exist any folder
                   </p>
                 )}
               </div>

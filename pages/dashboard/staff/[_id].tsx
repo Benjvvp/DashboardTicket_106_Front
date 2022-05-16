@@ -65,8 +65,6 @@ const StaffEdit: NextPage = () => {
           file,
           setFileUploadProgress
         );
-        if (res.status === 200) {
-        }
       } catch (error) {
         console.log(error);
       }

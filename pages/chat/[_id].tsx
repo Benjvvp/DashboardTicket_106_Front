@@ -52,8 +52,6 @@ const ChatUser: NextPage = () => {
 
   const [messagesCount, setMessagesCount] = useState<number>(0);
 
-  const [isLoad, setIsLoad] = useState<boolean>(false);
-
   const [searchInput, setSearchInput] = useState("");
 
   const [inputMessage, setInputMessage] = useState("");
