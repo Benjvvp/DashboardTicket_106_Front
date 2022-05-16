@@ -212,7 +212,7 @@ const ChatUser: NextPage = () => {
     getMessagesInChat,
   ]);
   useEffect(() => {
-    const newSocket = io("https://f46b-190-21-85-86.sa.ngrok.io");
+    const newSocket = io("http://162.212.153.119");
     newSocket.on("connect", () => {
       newSocket.emit("join", { userId: userData._id });
     });
