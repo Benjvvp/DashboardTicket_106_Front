@@ -114,7 +114,9 @@ const Chat: NextPage = () => {
                   folders.map(
                     (folder: { folder: string; files: string }, index) => {
                       return (
-                        <div className="flex flex-row items-center justify-between w-full bg-none dark:hover:bg-[#313442] px-4 rounded-lg max-h-[2.5em] py-5 cursor-pointer transition">
+                        <div className="flex flex-row items-center justify-between w-full bg-none dark:hover:bg-[#313442] px-4 rounded-lg max-h-[2.5em] py-5 cursor-pointer transition"
+                          key={`folder-${index}-${folder.folder}`}
+                        >
                           <div className="flex flex-row gap-3">
                             <img
                               src="/svg/mainIcon.svg"

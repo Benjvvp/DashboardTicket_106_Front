@@ -41,7 +41,7 @@ export default function NewActiveUsers() {
               .sort((a: any, b: any) => b.filesPushed - a.filesPushed)
               .slice(0, 6)
               .map((user: any) => (
-                <div className="flex flex-row justify-between items-center">
+                <div className="flex flex-row justify-between items-center" key={`activeUsers-${user.userName}`}>
                   <div className="flex flex-row gap-2 items-center">
                     <UserIcon userName={user.userName} avatar={user.avatar} />
                     <div className="flex flex-col justify-between text-left pl-2">
