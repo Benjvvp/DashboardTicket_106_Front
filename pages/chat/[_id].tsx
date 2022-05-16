@@ -1,31 +1,18 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import react, {
-  LegacyRef,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import react, { useContext, useEffect, useRef, useState } from "react";
 import Footer from "../../components/Footer";
 import LeftBar from "../../components/Navigation/LeftBar";
 import TopBar from "../../components/Navigation/TopBar";
 import DefaultSEO from "../../components/SEO";
 import UserIcon from "../../components/UserIcon";
 import { getItem } from "../../helpers/localStorage";
-import {
-  getAllUsers,
-  getUser,
-  getUsers,
-} from "../../helpers/serverRequests/user";
+import { getUser } from "../../helpers/serverRequests/user";
 import styles from "../../styles/components/topBar.module.css";
 import io, { Socket } from "socket.io-client";
 import { UserContext } from "../../contexts/userContext/UserContext";
-import {
-  getMessagesInChat,
-  getUnseenCountMessages,
-} from "../../helpers/serverRequests/chat";
+import { getMessagesInChat } from "../../helpers/serverRequests/chat";
 import Link from "next/link";
 
 const ChatUser: NextPage = () => {
@@ -185,14 +172,16 @@ const ChatUser: NextPage = () => {
     const token = await JSON.parse(await getItem("token"));
     const response = await getUser(token, userId);
     if (response.status === 200) {
-      const isOnline = users.find((user) => user._id === userId)?.isOnline;
-      setUserChat({
-        _id: response.data.user._id,
-        userName: response.data.user.userName,
-        avatar: response.data.user.avatar,
-        isOnline: isOnline ? isOnline : false,
-      });
-      setUserChatLoaded(true);
+      if (response.data.isError === false) {
+        const isOnline = users.find((user) => user._id === userId)?.isOnline;
+        setUserChat({
+          _id: response.data.user._id,
+          userName: response.data.user.userName,
+          avatar: response.data.user.avatar,
+          isOnline: isOnline ? isOnline : false,
+        });
+        setUserChatLoaded(true);
+      }
     }
     return null;
   };
@@ -223,7 +212,7 @@ const ChatUser: NextPage = () => {
     getMessagesInChat,
   ]);
   useEffect(() => {
-    const newSocket = io("https://1425-190-21-76-49.sa.ngrok.io");
+    const newSocket = io("https://f46b-190-21-85-86.sa.ngrok.io");
     newSocket.on("connect", () => {
       newSocket.emit("join", { userId: userData._id });
     });

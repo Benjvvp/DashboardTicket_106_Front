@@ -18,10 +18,11 @@ export default function ProjectStatics() {
 
       const response = await getTasks(token);
       if (response.status === 200) {
-        setTaskList(response.data.tasks);
-      }
-      if (response.status === 500) {
-        setTaskList([]);
+        if (response.data.isError === false) {
+          setTaskList(response.data.tasks);
+        } else {
+          setTaskList([]);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -75,7 +76,9 @@ export default function ProjectStatics() {
       initializeGetAverageForInProgressTask(taskList);
       initializeGetAverageForCompletedTask(taskList);
       setDataShowing(
-        averageForPendingTask + averageForInProgressTask + averageForCompletedTask
+        averageForPendingTask +
+          averageForInProgressTask +
+          averageForCompletedTask
       );
     }
   }, [
@@ -132,11 +135,7 @@ export default function ProjectStatics() {
         </h4>
       </div>
       <div className="flex flex-row p-5 w-full md:w-9/12 relative justify-center text-center mx-auto my-5">
-        <Doughnut
-          data={data}
-          options={options}
-          className="w-10/12 h-full"
-        />
+        <Doughnut data={data} options={options} className="w-10/12 h-full" />
         <div className="flex flex-col w-full h-full gap-2 justify-center ml-10">
           <div className="flex flex-row gap-2 items-center">
             <div className="h-[11px] w-[11px] bg-[#50D1B2] rounded-[2px]"></div>

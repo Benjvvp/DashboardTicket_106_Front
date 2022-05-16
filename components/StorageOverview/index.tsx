@@ -29,14 +29,16 @@ export default function StorageOverview() {
 
       const response = await getFilesAverageType(token);
       if (response.status === 200) {
-        setAveragesList({
-          document: response.data.document,
-          images: response.data.images,
-          video: response.data.video,
-          audio: response.data.audio,
-          exe: response.data.exe,
-          other: response.data.other,
-        });
+        if (response.data.isError === false) {
+          setAveragesList({
+            document: response.data.document,
+            images: response.data.images,
+            video: response.data.video,
+            audio: response.data.audio,
+            exe: response.data.exe,
+            other: response.data.other,
+          });
+        }
       }
       if (response.status === 500) {
         setAveragesList({
@@ -66,13 +68,12 @@ export default function StorageOverview() {
           chartArea: { left, top, right, bottom, width, height },
         } = chart;
         ctx.save();
-        console.log(chart)
+        console.log(chart);
 
         ctx.font = "bold 14px Poppins";
         ctx.fillStyle = "#8B8B93";
         ctx.textAlign = "center";
         //Fill text with chart data text
-
 
         ctx.fillText(
           `${chart.config._config.data.labels[0]}`,
@@ -84,7 +85,7 @@ export default function StorageOverview() {
   };
 
   const options = {
-    cutout: 22,
+    cutout: 25,
     plugins: {
       legend: {
         display: false,

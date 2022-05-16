@@ -1,12 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import {
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import TopBar from "../../../components/Navigation/TopBar";
 import PageTitle from "../../../components/PageTitle";
 import DefaultSEO from "../../../components/SEO";
@@ -85,22 +80,26 @@ const StaffEdit: NextPage = () => {
 
       const response_deleteTasksUsers = await deleteTaskByUser(token, id);
       if (response_deleteTasksUsers.status === 200) {
-        setSucessDeleteUser(true);
-        setTimeout(() => {
+        if (response_deleteTasksUsers.data.isError === false) {
+          setSucessDeleteUser(true);
+          setTimeout(() => {
+            setSucessDeleteUser(false);
+          }, 2000);
+        } else {
           setSucessDeleteUser(false);
-        }, 2000);
-      } else {
-        setSucessDeleteUser(false);
+        }
       }
 
       const response = await deleteUser(token, id);
       if (response.status === 200) {
-        setSucessDeleteUser(true);
-        setTimeout(() => {
+        if (response.data.isError === false) {
+          setSucessDeleteUser(true);
+          setTimeout(() => {
+            setSucessDeleteUser(false);
+          }, 2000);
+        } else {
           setSucessDeleteUser(false);
-        }, 2000);
-      } else {
-        setSucessDeleteUser(false);
+        }
       }
 
       if (id === userData._id) {
@@ -118,18 +117,19 @@ const StaffEdit: NextPage = () => {
 
       const response = await updateUser(token, user._id, userEdit);
       if (response.status === 200) {
-        setSucessEditUser(true);
-        setTimeout(() => {
+        if (response.data.isError === false) {
+          setSucessEditUser(true);
+          setTimeout(() => {
+            setSucessEditUser(false);
+          }, 2000);
+        } else {
           setSucessEditUser(false);
-        }, 2000);
-      }
-      if (response.status === 500) {
-        setSucessEditUser(false);
-        if (response.data.message === "User name already exists") {
-          setErrorUsername("User name already exists");
-        }
-        if (response.data.message === "Email already exists") {
-          setErrorEmail("Email already exists");
+          if (response.data.message === "User name already exists") {
+            setErrorUsername("User name already exists");
+          }
+          if (response.data.message === "Email already exists") {
+            setErrorEmail("Email already exists");
+          }
         }
       }
     } catch (error) {
@@ -142,10 +142,12 @@ const StaffEdit: NextPage = () => {
       const token = await JSON.parse(await getItem("token"));
       const response = await getUser(token, _id);
       if (response.status === 200) {
-        setUser(response.data.user);
-        setUserEdit(response.data.user);
-      } else {
-        router.push("/dashboard/staff");
+        if (response.data.isError === false) {
+          setUser(response.data.user);
+          setUserEdit(response.data.user);
+        } else {
+          router.push("/dashboard/staff");
+        }
       }
     } catch (error) {
       console.error(error);

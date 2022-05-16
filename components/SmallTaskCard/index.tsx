@@ -68,11 +68,12 @@ export default function SmallTaskCard(props: SmallTaskCardProps) {
         props.assignedUsers.join(",")
       );
       if (response.status === 200) {
-        setIsLoading(false);
-        setAssignedUsers(response.data.users);
-      }
-      if (response.status === 500) {
-        setAssignedUsers([]);
+        if (response.data.isError === false) {
+          setIsLoading(false);
+          setAssignedUsers(response.data.users);
+        } else {
+          setAssignedUsers([]);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -84,14 +85,15 @@ export default function SmallTaskCard(props: SmallTaskCardProps) {
       let token = await JSON.parse(await getItem("token"));
       const response = await getUser(token, author);
       if (response.status === 200) {
-        setIsLoading(false);
-        setAuthorData(response.data.user);
-      }
-      if (response.status === 500) {
-        setAuthorData({
-          userName: "",
-          avatar: "",
-        });
+        if (response.data.isError === false) {
+          setIsLoading(false);
+          setAuthorData(response.data.user);
+        } else {
+          setAuthorData({
+            userName: "",
+            avatar: "",
+          });
+        }
       }
     } catch (error) {
       console.log(error);

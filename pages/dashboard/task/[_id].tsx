@@ -63,10 +63,12 @@ const TaskEdit: NextPage = () => {
       const token = await JSON.parse(await getItem("token"));
       const response = await getTask(token, _id);
       if (response.status === 200) {
-        setTask(response.data.task);
-        setTaskEdit(response.data.task);
-      } else {
-        router.push("/");
+        if (response.data.isError === false) {
+          setTask(response.data.task);
+          setTaskEdit(response.data.task);
+        } else {
+          router.push("/");
+        }
       }
     } catch (error) {
       console.error(error);
@@ -78,13 +80,14 @@ const TaskEdit: NextPage = () => {
       let token = await JSON.parse(await getItem("token"));
       const response = await deleteTask(token, taskId);
       if (response.status === 200) {
-        setSuccessDeleteTask(true);
-        setTimeout(() => {
+        if (response.data.isError === false) {
+          setSuccessDeleteTask(true);
+          setTimeout(() => {
+            setSuccessDeleteTask(false);
+          }, 3000);
+        } else {
           setSuccessDeleteTask(false);
-        }, 3000);
-      }
-      if (response.status === 500) {
-        setSuccessDeleteTask(false);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -103,10 +106,11 @@ const TaskEdit: NextPage = () => {
         progress: parseInt(taskEdit.progress),
       });
       if (response.status === 200) {
-        setSucessEditTask(true);
-      }
-      if (response.status === 500) {
-        setSucessEditTask(false);
+        if (response.data.isError === false) {
+          setSucessEditTask(true);
+        } else {
+          setSucessEditTask(false);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -146,17 +150,17 @@ const TaskEdit: NextPage = () => {
       </Head>
       <TopBar isLarge showLogo />
       <div className="w-[100%] mt-[100px] block relative h-full min-h-[89vh] p-[3em] px-[10%]">
-          <PageTitle
-            title="Task details"
-            addBreadcrumb
-            linksBreadcrumb={[
-              {
-                Name: "Home",
-                Url: "/",
-                icon: "/svg/home-2.svg",
-              },
-            ]}
-          />
+        <PageTitle
+          title="Task details"
+          addBreadcrumb
+          linksBreadcrumb={[
+            {
+              Name: "Home",
+              Url: "/",
+              icon: "/svg/home-2.svg",
+            },
+          ]}
+        />
         <div className="flex flex-row w-full h-full py-10 px-10 bg-white rounded-xl border-[1px] border-[#E8EDF2] dark:bg-[#1F2128] dark:border-[#313442] mt-[5%]">
           <div className="flex flex-col w-full h-full justify-center items-center gap-5">
             <div className="flex flex-col h-full gap-2 w-full px-5 xl:px-10">
@@ -310,7 +314,9 @@ const TaskEdit: NextPage = () => {
                       max={100}
                       step={1}
                     />
-                    <p className="text-md text-[#07070C] dark:text-white font-medium">{taskEdit.progress}</p>
+                    <p className="text-md text-[#07070C] dark:text-white font-medium">
+                      {taskEdit.progress}
+                    </p>
                   </div>
                 </div>
               </div>

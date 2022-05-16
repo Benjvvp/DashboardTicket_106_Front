@@ -28,44 +28,46 @@ export default function TaskFormModal(props: propsTaskFormModal) {
   const handleClick = async (e: any) => {
     setIntentToCreateTask(true);
     e.preventDefault();
-    if(
+    if (
       createTaskValues.title.length < 5 ||
       createTaskValues.description.length < 5
-    ) return;
-    
+    )
+      return;
+
     if (projectNameError === "" && projectDescriptionError === "") {
       try {
         let token = await JSON.parse(await getItem("token"));
         const response = await createTask(token, createTaskValues);
 
         if (response.status === 200) {
-          setSucessCreateTask(true);
-          setIntentToCreateTask(false);
-          setCreateTaskValues({
-            author: "",
-            title: "",
-            description: "",
-            category: "Other",
-            priority: "Low",
-          });
-          setTimeout(() => {
-            setSucessCreateTask(false);
-          }, 2000);
-        }
-        if (response.status === 400) {
-          if(response.data.message === "Task already exists."){
-            setProjectNameError("Task already exists.");
-          };
-          
-          if (
-            response.data.message ===
-            "Missing required fields in the request body."
-          ) {
-            if (createTaskValues.title === "") {
-              setProjectNameError("Project name is required");
+          if (response.data.isError === false) {
+            setSucessCreateTask(true);
+            setIntentToCreateTask(false);
+            setCreateTaskValues({
+              author: "",
+              title: "",
+              description: "",
+              category: "Other",
+              priority: "Low",
+            });
+            setTimeout(() => {
+              setSucessCreateTask(false);
+            }, 2000);
+          } else {
+            if (response.data.message === "Task already exists.") {
+              setProjectNameError("Task already exists.");
             }
-            if (createTaskValues.description === "") {
-              setprojectDescriptionError("Project description is required");
+
+            if (
+              response.data.message ===
+              "Missing required fields in the request body."
+            ) {
+              if (createTaskValues.title === "") {
+                setProjectNameError("Project name is required");
+              }
+              if (createTaskValues.description === "") {
+                setprojectDescriptionError("Project description is required");
+              }
             }
           }
         }

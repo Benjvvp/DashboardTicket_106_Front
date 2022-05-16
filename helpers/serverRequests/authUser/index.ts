@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { clearLocalStorage } from "../../localStorage";
 
-const mainUrl = process.env.MAIN_URL || "https://1425-190-21-76-49.sa.ngrok.io/api";
+const mainUrl = process.env.MAIN_URL || "https://f46b-190-21-85-86.sa.ngrok.io/api";
 
 export const loginUser = async (data: { email: string; password: string }) => {
   try {

@@ -43,19 +43,20 @@ export default function TaskLargeListCards(props: TaskCardProps) {
 
       const response = await getTasks(token);
       if (response.status === 200) {
-        
-        const sortedTasks = response.data.tasks.sort(
-          (a: LargeTaskCardProps, b: LargeTaskCardProps) => {
-            return (
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            );
-          }
-        );
-        setAllTasks(sortedTasks);
-        setCountPage(Math.ceil(response.data.tasks.length / countShow));
-      }
-      if (response.status === 500) {
-        setAllTasks([]);
+        if (response.data.isError === false) {
+          const sortedTasks = response.data.tasks.sort(
+            (a: LargeTaskCardProps, b: LargeTaskCardProps) => {
+              return (
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+              );
+            }
+          );
+          setAllTasks(sortedTasks);
+          setCountPage(Math.ceil(response.data.tasks.length / countShow));
+        } else {
+          setAllTasks([]);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -66,10 +67,9 @@ export default function TaskLargeListCards(props: TaskCardProps) {
     try {
       let token = await JSON.parse(await getItem("token"));
       const response = await deleteTask(token, taskId);
-      if (response.status === 200) {
+      if (response.data.isError === false) {
         setSuccessDeleteTask(true);
-      }
-      if (response.status === 500) {
+      } else {
         setSuccessDeleteTask(false);
         setModalDeleteTask(false);
       }

@@ -11,10 +11,11 @@ export default function NewActiveUsers() {
 
       const response = await getAllUsers(token);
       if (response.status === 200) {
-        setUsers(response.data.users);
-      }
-      if (response.status === 500) {
-        setUsers([]);
+        if (response.data.isError === false) {
+          setUsers(response.data.users);
+        } else {
+          setUsers([]);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -36,7 +37,7 @@ export default function NewActiveUsers() {
         {users.length > 0 ? (
           <div className="flex flex-col w-full gap-5">
             {users
-              .filter((user:any) => user.filesPushed > 0)
+              .filter((user: any) => user.filesPushed > 0)
               .sort((a: any, b: any) => b.filesPushed - a.filesPushed)
               .slice(0, 6)
               .map((user: any) => (

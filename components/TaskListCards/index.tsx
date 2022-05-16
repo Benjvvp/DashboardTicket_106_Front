@@ -44,14 +44,15 @@ export default function TaskCard(props: TaskCardProps) {
 
       const response = await getTasks(token);
       if (response.status === 200) {
-        setTaskList(
-          response.data.tasks.filter(
-            (task: { status: string }) => task.status === typeOfTaskDisplay
-          )
-        );
-      }
-      if (response.status === 500) {
-        setTaskList([]);
+        if (response.data.isError === false) {
+          setTaskList(
+            response.data.tasks.filter(
+              (task: { status: string }) => task.status === typeOfTaskDisplay
+            )
+          );
+        } else {
+          setTaskList([]);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -63,11 +64,12 @@ export default function TaskCard(props: TaskCardProps) {
       let token = await JSON.parse(await getItem("token"));
       const response = await deleteTask(token, taskId);
       if (response.status === 200) {
-        setSuccessDeleteTask(true);
-      }
-      if (response.status === 500) {
-        setSuccessDeleteTask(false);
-        setModalDeleteTask(false);
+        if (response.data.isError === false) {
+          setSuccessDeleteTask(true);
+        } else {
+          setSuccessDeleteTask(false);
+          setModalDeleteTask(false);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -89,11 +91,19 @@ export default function TaskCard(props: TaskCardProps) {
         {taskList && taskList.length > 0 ? (
           taskList.map((task: SmallTaskCardProps, index: number) => {
             if (index < countShow) {
-              return <SmallTaskCard key={index} {...task} clickHandlerUserAdd={props.clickHandlerUserAdd} setIdTask={props.setIdTask} deleteTaskFunction={deleteTaskFunction}
-              setModalDeleteTask={setModalDeleteTask}
-              setSuccessDeleteTask={setSuccessDeleteTask}
-              successDeleteTask={successDeleteTask}
-              modalDeleteTask={modalDeleteTask} />;
+              return (
+                <SmallTaskCard
+                  key={index}
+                  {...task}
+                  clickHandlerUserAdd={props.clickHandlerUserAdd}
+                  setIdTask={props.setIdTask}
+                  deleteTaskFunction={deleteTaskFunction}
+                  setModalDeleteTask={setModalDeleteTask}
+                  setSuccessDeleteTask={setSuccessDeleteTask}
+                  successDeleteTask={successDeleteTask}
+                  modalDeleteTask={modalDeleteTask}
+                />
+              );
             }
           })
         ) : (

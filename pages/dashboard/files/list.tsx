@@ -36,7 +36,9 @@ const Chat: NextPage = () => {
     let token = await JSON.parse(await getItem("token"));
     const response = await getFolders(token);
     if (response.status === 200) {
-      setFolders(response.data.folders);
+      if(response.data.isError === false){
+        setFolders(response.data.folders);
+      }
     }
     if (response.status === 500) {
       setFolders([]);

@@ -30,8 +30,13 @@ export default function UserContextProvider({children}: any){
 
                   const response = await loginWithToken(token);
                   if(response.status === 200) {
-                        setIsLoggedIn(true);
-                        setUserData({...response.data.user});
+                        if(response.data.isError === false){
+                              setIsLoggedIn(true);
+                              setUserData({...response.data.user});
+                        } else {
+                              router.push('/auth/login');
+                              setIsLoggedIn(false);
+                        }
                   }
                   if(response.status === 500){
                         setIsLoggedIn(false);

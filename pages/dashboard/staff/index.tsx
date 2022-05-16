@@ -8,7 +8,11 @@ import PageTitle from "../../../components/PageTitle";
 import DefaultSEO from "../../../components/SEO";
 import { UserContext } from "../../../contexts/userContext/UserContext";
 import { getItem, logoutUser } from "../../../helpers/localStorage";
-import { deleteTaskByUser, deleteUser, getAllUsers } from "../../../helpers/serverRequests/user";
+import {
+  deleteTaskByUser,
+  deleteUser,
+  getAllUsers,
+} from "../../../helpers/serverRequests/user";
 
 const Staff: NextPage = () => {
   const router = useRouter();
@@ -20,7 +24,7 @@ const Staff: NextPage = () => {
   const [sucessDeleteUser, setSucessDeleteUser] = useState(false);
   const [userIdToDelete, setUserIdToDelete] = useState("");
 
-  const {userData} = useContext(UserContext);
+  const { userData } = useContext(UserContext);
 
   const checkToken = async () => {
     const token = await getItem("token");
@@ -34,27 +38,30 @@ const Staff: NextPage = () => {
 
       const response_deleteTasksUsers = await deleteTaskByUser(token, id);
       if (response_deleteTasksUsers.status === 200) {
-        setSucessDeleteUser(true);
-        setUserIdToDelete("");
-        await initializeGetUsers();
-      } else {
-        setSucessDeleteUser(false);
-        setUserIdToDelete("");
-        setModalDeleteUser(false);
+        if (response_deleteTasksUsers.data.isError === false) {
+          setSucessDeleteUser(true);
+          setUserIdToDelete("");
+          await initializeGetUsers();
+        } else {
+          setSucessDeleteUser(false);
+          setUserIdToDelete("");
+          setModalDeleteUser(false);
+        }
       }
 
       const response = await deleteUser(token, id);
       if (response.status === 200) {
-        setUserIdToDelete("");
-        await initializeGetUsers();
-      } else {
-        setSucessDeleteUser(false);
-        setUserIdToDelete("");
-        setModalDeleteUser(false);
+        if (response.data.isError === false) {
+          setUserIdToDelete("");
+          await initializeGetUsers();
+        } else {
+          setSucessDeleteUser(false);
+          setUserIdToDelete("");
+          setModalDeleteUser(false);
+        }
       }
 
-      if(id === userData._id){
-        console.log('asd')
+      if (id === userData._id) {
         logoutUser();
         router.push("/auth/login");
       }
@@ -68,18 +75,20 @@ const Staff: NextPage = () => {
       const token = await JSON.parse(await getItem("token"));
       const response = await getAllUsers(token);
       if (response.status === 200) {
-        const { data } = response;
-        const generalStaffUsers = data.users.filter(
-          (user: any) => user.role === "General Staff"
-        );
-        const adminUsers = data.users.filter(
-          (user: any) => user.role === "Admin"
-        );
-        setGeneralStaffUsers(generalStaffUsers);
-        setAdminUsers(adminUsers);
-      } else {
-        setGeneralStaffUsers([]);
-        setAdminUsers([]);
+        if (response.data.isError === false) {
+          const { data } = response;
+          const generalStaffUsers = data.users.filter(
+            (user: any) => user.role === "General Staff"
+          );
+          const adminUsers = data.users.filter(
+            (user: any) => user.role === "Admin"
+          );
+          setGeneralStaffUsers(generalStaffUsers);
+          setAdminUsers(adminUsers);
+        } else {
+          setGeneralStaffUsers([]);
+          setAdminUsers([]);
+        }
       }
     } catch (error) {
       console.log(error);

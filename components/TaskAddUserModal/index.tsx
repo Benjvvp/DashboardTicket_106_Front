@@ -41,9 +41,11 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
     let token = await JSON.parse(await getItem("token"));
     const response = await getTask(token, props.idTask);
     if (response.status === 200) {
-      setUsersIdInTask(response.data.task.assignedUsers);
-    } else {
-      console.log(response.data);
+      if (response.data.isError === false) {
+        setUsersIdInTask(response.data.task.assignedUsers);
+      } else {
+        console.log(response.data.message);
+      }
     }
   };
 
@@ -51,9 +53,11 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
     let token = await JSON.parse(await getItem("token"));
     const response = await removeUserToTask(token, props.idTask, idUser);
     if (response.status === 200) {
-      getUsersIdFromTask();
-    } else {
-      console.log(response.data);
+      if (response.data.isError === false) {
+        getUsersIdFromTask();
+      } else {
+        console.log(response.data);
+      }
     }
   };
 
@@ -61,9 +65,11 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
     let token = await JSON.parse(await getItem("token"));
     const response = await addUserToTask(token, props.idTask, idUser);
     if (response.status === 200) {
-      getUsersIdFromTask();
-    } else {
-      console.log(response.data);
+      if (response.data.isError === false) {
+        getUsersIdFromTask();
+      } else {
+        console.log(response.data);
+      }
     }
   };
 
@@ -72,13 +78,16 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
     let token = await JSON.parse(await getItem("token"));
     const response = await getUsers(token, usersIdInTask);
     if (response.status === 200) {
-      setUsersInTask(
-        response.data.users.filter(
-          (user: { userName: string }) => user.userName !== author.userName
-        )
-      );
-    } else {
-      console.log(response.data);
+      if (response.data.isError === false) {
+        setUsersInTask(
+          response.data.users.filter(
+            (user: { userName: string }) => user.userName !== author.userName
+          )
+        );
+      } else {
+        setUsersInTask([]);
+        console.log(response.data);
+      }
     }
   };
 
@@ -86,13 +95,16 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
     let token = await JSON.parse(await getItem("token"));
     const response = await getAllUsers(token);
     if (response.status === 200) {
-      setAllUsers(
-        response.data.users.filter(
-          (user: { userName: string }) => user.userName !== author.userName
-        )
-      );
-    } else {
-      console.log(response.data);
+      if (response.data.isError === false) {
+        setAllUsers(
+          response.data.users.filter(
+            (user: { userName: string }) => user.userName !== author.userName
+          )
+        );
+      } else {
+        setAllUsers([]);
+        console.log(response.data.message);
+      }
     }
   };
 
@@ -100,9 +112,11 @@ export default function TaskAddUserModal(props: propsTaskAddUserModal) {
     let token = await JSON.parse(await getItem("token"));
     const response = await getUser(token, userData._id);
     if (response.status === 200) {
-      setAuthor(response.data.user);
-    } else {
-      console.log(response.data);
+      if (response.data.isError === false) {
+        setAuthor(response.data.user);
+      } else {
+        console.log(response.data);
+      }
     }
   };
 

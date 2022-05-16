@@ -8,11 +8,9 @@ import TopBar from "../../components/Navigation/TopBar";
 import DefaultSEO from "../../components/SEO";
 import UserIcon from "../../components/UserIcon";
 import { getItem } from "../../helpers/localStorage";
-import { getAllUsers, getUsers } from "../../helpers/serverRequests/user";
 import styles from "../../styles/components/topBar.module.css";
 import io, { Socket } from "socket.io-client";
 import { UserContext } from "../../contexts/userContext/UserContext";
-import { getUnseenCountMessages } from "../../helpers/serverRequests/chat";
 import Link from "next/link";
 
 const Chat: NextPage = () => {
@@ -84,7 +82,7 @@ const Chat: NextPage = () => {
 
   useEffect(() => {
     checkToken();
-    const newSocket = io("https://1425-190-21-76-49.sa.ngrok.io");
+    const newSocket = io("https://f46b-190-21-85-86.sa.ngrok.io");
     newSocket.on("connect", () => {
       newSocket.emit("join", { userId: userData._id });
     });

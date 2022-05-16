@@ -2,13 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../contexts/userContext/UserContext";
 import { getItem } from "../../helpers/localStorage";
 import { createFolder } from "../../helpers/serverRequests/files";
-import {
-  getAllUsers,
-  getUser,
-  getUsers,
-} from "../../helpers/serverRequests/user";
 import { InputDefault } from "../Inputs";
-import UserIcon from "../UserIcon";
 
 interface FilesAddFolderModal {
   modalAddFolder: boolean;
@@ -19,7 +13,12 @@ interface FilesAddFolderModal {
 
 export default function FilesAddFolderModal(props: FilesAddFolderModal) {
   const { userData } = useContext(UserContext);
-  const { modalAddFolder, setModalAddFolder, setIsModalActive, getFoldersFromServer } = props;
+  const {
+    modalAddFolder,
+    setModalAddFolder,
+    setIsModalActive,
+    getFoldersFromServer,
+  } = props;
 
   const [successCreateFolder, setSuccessCreateFolder] = useState(false);
 
@@ -28,22 +27,27 @@ export default function FilesAddFolderModal(props: FilesAddFolderModal) {
 
   const createFolderFunction = async () => {
     try {
+      if (folderName.length === 0) {
+        setFolderNameError("Folder name is required");
+        return;
+      }
       let token = await JSON.parse(await getItem("token"));
       const response = await createFolder(token, folderName);
       if (response.status === 200) {
-        setSuccessCreateFolder(true);
-        setFolderName("");
-        setTimeout(() => {
-          setSuccessCreateFolder(false);
-        }, 2000);
-        getFoldersFromServer();
-      }
-      if (response.status === 400) {
-        if (response.data.message === "Folder name is required") {
-          setFolderNameError("Folder name is required");
-        }
-        if (response.data.message === "Folder already exists") {
-          setFolderNameError("Folder already exists");
+        if (response.data.isError === false) {
+          setSuccessCreateFolder(true);
+          setFolderName("");
+          setTimeout(() => {
+            setSuccessCreateFolder(false);
+          }, 2000);
+          getFoldersFromServer();
+        } else {
+          if (response.data.message === "Folder name is required") {
+            setFolderNameError("Folder name is required");
+          }
+          if (response.data.message === "Folder already exists") {
+            setFolderNameError("Folder already exists");
+          }
         }
       }
     } catch (error) {

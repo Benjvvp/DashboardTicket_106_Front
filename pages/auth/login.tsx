@@ -40,21 +40,22 @@ const Login: NextPage = () => {
         const response = await loginUser(data);
 
         if (response.status === 200) {
-          const token = response.data.token;
-          saveItem("token", token)
-          setIsLoggedIn(true);
-          setUserData(response.data.user);
-          setloginCorrectly(true);
-          setTimeout(() => {
-            router.push("/");
-          }, 2000);
-        }
-        if (response.status === 400) {
-          if (response.data.message === "User not found") {
-            setErrorEmail("User not found");
-          }
-          if (response.data.message === "Incorrect password") {
-            setErrorPassword("Incorrect password");
+          if (response.data.isError === false) {
+            const token = response.data.token;
+            saveItem("token", token);
+            setIsLoggedIn(true);
+            setUserData(response.data.user);
+            setloginCorrectly(true);
+            setTimeout(() => {
+              router.push("/");
+            }, 2000);
+          } else {
+            if (response.data.message === "User not found") {
+              setErrorEmail("User not found");
+            }
+            if (response.data.message === "Incorrect password") {
+              setErrorPassword("Incorrect password");
+            }
           }
         }
       } catch (error) {
@@ -98,7 +99,7 @@ const Login: NextPage = () => {
         <meta name="description" content="Login project" />
         <link rel="icon" href="/favicon.ico" />
         <DefaultSEO />
-      </Head >
+      </Head>
       <TopBar onlyLogo showLogo showActionButton useNormalActionsButtons />
       <div className="h-full py-10 flex items-center justify-center">
         <div className="max-w-md w-full space-y-2 border border-[#E8EDF2] rounded-2xl bg-[#ffffff] dark:bg-[#1F2128] dark:border-[#313442] py-12 px-4 sm:px-6 lg:px-8">

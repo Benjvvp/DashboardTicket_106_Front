@@ -56,23 +56,26 @@ const Register: NextPage = () => {
         const data: registerFormType = registerForm;
         const response = await registerUser(data);
         if (response.status === 200) {
-          saveItem("token", response.data.token);
-          setIsLoggedIn(true);
-          setUserData(response.data.user);
-          setRegisterCorrectly(true);
-          setTimeout(() => {
-            router.push("/");
-          }, 2000);
-        }
-        if (response.status === 400) {
-          if (response.data.message === "AuthCode is incorrect") {
-            setErrorAuthCode("AuthCode is incorrect");
-          }
-          if (response.data.message === "User already exists (email)") {
-            setErrorEmail("Use other email, this email is already used");
-          }
-          if (response.data.message === "User already exists (username)") {
-            setErrorUserName("Use other username, this username is already used");
+          if (response.data.isError === false) {
+            saveItem("token", response.data.token);
+            setIsLoggedIn(true);
+            setUserData(response.data.user);
+            setRegisterCorrectly(true);
+            setTimeout(() => {
+              router.push("/");
+            }, 2000);
+          } else {
+            if (response.data.message === "AuthCode is incorrect") {
+              setErrorAuthCode("AuthCode is incorrect");
+            }
+            if (response.data.message === "User already exists (email)") {
+              setErrorEmail("Use other email, this email is already used");
+            }
+            if (response.data.message === "User already exists (username)") {
+              setErrorUserName(
+                "Use other username, this username is already used"
+              );
+            }
           }
         }
       } catch (error) {
@@ -96,7 +99,7 @@ const Register: NextPage = () => {
       setErrorEmail("");
     }
 
-    if(registerForm.email.split('').includes('@') === false) {
+    if (registerForm.email.split("").includes("@") === false) {
       setErrorEmail("Email is not valid");
     } else {
       setErrorEmail("");
@@ -114,8 +117,10 @@ const Register: NextPage = () => {
       setErrorPassword("");
     }
 
-
-    if (registerForm.passwordConfirmation.length > 0 && registerForm.passwordConfirmation.length < 8) {
+    if (
+      registerForm.passwordConfirmation.length > 0 &&
+      registerForm.passwordConfirmation.length < 8
+    ) {
       setErrorConfirmPassword("Password must be at least 8 characters");
     } else {
       setErrorConfirmPassword("");
