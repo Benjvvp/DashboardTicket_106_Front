@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { clearLocalStorage } from "../../localStorage";
 
-const mainUrl = process.env.MAIN_URL || "http://162.212.153.119/api";
+const mainUrl = process.env.MAIN_URL || "http://localhost:3001/api";
 
 export const getMessagesInChat = async (
   token: string,

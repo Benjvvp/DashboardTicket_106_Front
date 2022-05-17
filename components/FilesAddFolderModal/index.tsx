@@ -31,6 +31,11 @@ export default function FilesAddFolderModal(props: FilesAddFolderModal) {
         setFolderNameError("Folder name is required");
         return;
       }
+      //Check have space
+      if (folderName.indexOf(" ") !== -1) {
+        setFolderNameError("Folder name can't have space");
+        return;
+      }
       const token = await JSON.parse(await getItem("token"));
       const response = await createFolder(token, folderName);
       if (response.status === 200) {
@@ -47,6 +52,9 @@ export default function FilesAddFolderModal(props: FilesAddFolderModal) {
           }
           if (response.data.message === "Folder already exists") {
             setFolderNameError("Folder already exists");
+          }
+          if(response.data.message === "Folder name can't have space"){
+            setFolderNameError("Folder name can't have space");
           }
         }
       }

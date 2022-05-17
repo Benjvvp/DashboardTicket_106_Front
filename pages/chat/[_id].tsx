@@ -210,7 +210,7 @@ const ChatUser: NextPage = () => {
     getMessagesInChat,
   ]);
   useEffect(() => {
-    const newSocket = io("http://162.212.153.119");
+    const newSocket = io("http://localhost:3001");
     newSocket.on("connect", () => {
       newSocket.emit("join", { userId: userData._id });
     });

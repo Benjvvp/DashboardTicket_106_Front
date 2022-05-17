@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios";
 import { clearLocalStorage } from "../../localStorage";
 
 const mainUrl =
-  process.env.MAIN_URL || "http://162.212.153.119/api";
+  process.env.MAIN_URL || "http://localhost:3001/api";
 
 export const getFilesAverageType = async (token: string) => {
   try {
@@ -54,6 +54,26 @@ export const createFolder = async (token: string, folderName: string) => {
       },
       data: {
         folderName,
+      },
+    });
+    return response;
+  } catch (err: any) {
+    return {
+      status: err.response.status,
+      data: {
+        message: err.response.data.message,
+      },
+    };
+  }
+};
+
+export const getFilesInFolder = async (token: string, folderName: string) => {
+  try {
+    const response = await axios.request({
+      method: "get",
+      url: `${mainUrl}/files/getFilesInFolder/${folderName}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
     });
     return response;

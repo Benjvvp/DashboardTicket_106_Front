@@ -82,7 +82,7 @@ const Chat: NextPage = () => {
 
   useEffect(() => {
     checkToken();
-    const newSocket = io("http://162.212.153.119/api");
+    const newSocket = io("http://localhost:3001/api");
     newSocket.on("connect", () => {
       newSocket.emit("join", { userId: userData._id });
     });

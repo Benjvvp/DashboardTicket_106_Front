@@ -16,6 +16,7 @@ import NewActiveUsers from "../../../components/NewActiveUsers";
 import Link from "next/link";
 import { getFolders } from "../../../helpers/serverRequests/files";
 import FilesAddFolderModal from "../../../components/FilesAddFolderModal";
+import FolderViewers from "../../../components/FolderViewers";
 const Chat: NextPage = () => {
   const router = useRouter();
   const { userData } = useContext(UserContext);
@@ -25,6 +26,8 @@ const Chat: NextPage = () => {
 
   const [isOpenAddFolderModal, setIsOpenAddFolderModal] = useState(false);
   const [isModalActive, setIsModalActive] = useState(false);
+
+  const [folderSelected, setFolderSelected] = useState<string | null>(null);
 
   const checkToken = async () => {
     const token = await JSON.parse(await getItem("token"));
@@ -66,7 +69,7 @@ const Chat: NextPage = () => {
       <div
         className={`w-full ${
           isOpenLeftBar ? " xl:ml-[12%] xl:w-[88%]" : " xl:ml-[6%] xl:w-[94%]"
-        } block relative h-full min-h-[89vh] p-[3em] pt-5 transition-all duration-500`}
+        } block relative h-full xl:min-h-[89vh] lg:min-h-[120vh] md:min-h-[130vh] min-h-[140vh] p-[3em] pt-5 transition-all duration-500`}
       >
         <PageTitle
           title="File Manage"
@@ -87,8 +90,8 @@ const Chat: NextPage = () => {
             },
           ]}
         />
-        <div className="grid grid-cols-10 gap-3 min-h-[66vh] max-h-[66vh] w-full mt-5">
-          <div className="col-span-2">
+        <div className="grid grid-cols-10 gap-3 xl:min-h-[66vh] xl:max-h-[66vh] h-full w-full mt-5">
+          <div className="col-span-10 xl:col-span-2 max-h-[30vh] xl:max-h-full">
             <div className="rounded-lg p-5 flex max-h-full flex-col gap-5 bg-white dark:bg-[#1F2128] border-[1px] border-[#E8EDF2] dark:border-[#313442] rounded-xl p-[24px] pt-[14px]">
               <div
                 className="flex flex-row items-center justify-center w-full bg-[#7364DB] rounded-lg max-h-[3em] gap-2 mt-5 cursor-pointer"
@@ -109,7 +112,7 @@ const Chat: NextPage = () => {
                   New folder
                 </button>
               </div>
-              <div className="flex flex-col gap-1 max-h-full">
+              <div className="flex flex-col gap-1 max-h-full overflow-auto">
                 {folders.length > 0 ? (
                   folders.map(
                     (folder: { folder: string; files: string }, index) => {
@@ -117,6 +120,9 @@ const Chat: NextPage = () => {
                         <div
                           className="flex flex-row items-center justify-between w-full bg-none dark:hover:bg-[#313442] px-4 rounded-lg max-h-[2.5em] py-5 cursor-pointer transition"
                           key={`folder-${index}-${folder.folder}`}
+                          onClick={() => {
+                            setFolderSelected(folder.folder);
+                          }}
                         >
                           <div className="flex flex-row gap-3">
                             <img
@@ -143,7 +149,9 @@ const Chat: NextPage = () => {
               </div>
             </div>
           </div>
-          <div className="col-span-8 rounded-lg shadow-lg p-5 bg-white dark:bg-[#1F2128] border-[1px] border-[#E8EDF2] dark:border-[#313442] rounded-xl p-[24px] pt-[14px]"></div>
+          <div className="col-span-10 xl:col-span-8 rounded-lg shadow-lg p-5 bg-white dark:bg-[#1F2128] border-[1px] border-[#E8EDF2] dark:border-[#313442] rounded-xl p-[24px] pt-[14px] max-h-[32vh] max-h-[100vh] mt-10 lg:mt-0 overflow-auto">
+            <FolderViewers folderSelected={folderSelected} setFolderSelected={setFolderSelected} />
+          </div>
         </div>
         <Footer />
         <FilesAddFolderModal

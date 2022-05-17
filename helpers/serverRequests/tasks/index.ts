@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const mainUrl = process.env.MAIN_URL || "http://162.212.153.119/api";
+const mainUrl = process.env.MAIN_URL || "http://localhost:3001/api";
 
 export const getTasks = async (token: string) => {
   try {
