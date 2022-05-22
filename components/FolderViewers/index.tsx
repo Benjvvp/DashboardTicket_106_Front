@@ -7,8 +7,9 @@ import {
   deleteFiles,
   downloadFiles,
   getFilesInFolder,
-  uploadFileInFolder,
+  uploadFilesInFolder,
 } from "../../helpers/serverRequests/files";
+import FileRow from "../FileRow";
 import Pagination from "../Pagination";
 
 interface FolderViewersProps {
@@ -32,7 +33,7 @@ export default function FolderViewers(props: FolderViewersProps) {
   const { theme } = useTheme();
   const { setFolderSelected, folderSelected, refreshList } = props;
 
-  const [fileUpload, setFileUpload] = useState({} as File);
+  const [fileUpload, setFileUpload] = useState([{} as File]);
   const [fileUploadProgress, setFileUploadProgress] = useState(0);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -62,61 +63,11 @@ export default function FolderViewers(props: FolderViewersProps) {
     }
   };
 
-  const getImagePathIcon = (fileType: string) => {
-    switch (fileType) {
-      case "AI":
-        return "/svg/Icon=AI.svg";
-        break;
-      case "AVI":
-        return "/svg/Icon=AVI.svg";
-        break;
-      case "DOC":
-        return "/svg/Icon=DOC.svg";
-        break;
-      case "GIF":
-        return "/svg/Icon=GIF.svg";
-        break;
-      case "MKV":
-        return "/svg/Icon=MKV.svg";
-        break;
-      case "MP3":
-        return "/svg/Icon=MP3.svg";
-        break;
-      case "PDF":
-        return "/svg/Icon=PDF.svg";
-        break;
-      case "PG":
-        return "/svg/Icon=PG.svg";
-        break;
-      case "PPT":
-        return "/svg/Icon=PPT.svg";
-        break;
-      case "PSD":
-        return "/svg/Icon=PSD.svg";
-        break;
-      case "SVG":
-        return "/svg/Icon=SVG.svg";
-        break;
-      case "TXT":
-        return "/svg/Icon=TXT.svg";
-        break;
-      case "XLS":
-        return "/svg/Icon=XLS.svg";
-        break;
-      case "ZIP":
-        return "/svg/Icon=ZIP.svg";
-        break;
-      default:
-        return "/svg/Icon=NONE.svg";
-        break;
-    }
-  };
-
   const uploadFile = async () => {
     if (fileUpload && folderSelected) {
       try {
         const token = await JSON.parse(await getItem("token"));
-        const response = await uploadFileInFolder(
+        const response = await uploadFilesInFolder(
           token,
           folderSelected,
           fileUpload,
@@ -125,7 +76,7 @@ export default function FolderViewers(props: FolderViewersProps) {
         if (response.status === 200) {
           if (response.data.isError === false) {
             getFilesInFolderFromServer();
-            setFileUpload({} as File);
+            setFileUpload([]);
             refreshList();
           }
         }
@@ -194,7 +145,7 @@ export default function FolderViewers(props: FolderViewersProps) {
   };
 
   useEffect(() => {
-    if (fileUpload.name && fileUpload.type) {
+    if (fileUpload.length > 0) {
       uploadFile();
     }
   }, [fileLists, fileUpload, folderSelected]);
@@ -203,7 +154,13 @@ export default function FolderViewers(props: FolderViewersProps) {
     if (folderSelected !== null) {
       getFilesInFolderFromServer();
     }
+    setSelectedFiles([]);
+    setCurrentPage(1);
   }, [folderSelected]);
+
+  useEffect(() => {
+    console.log(selectedFiles)
+  }, [selectedFiles])
 
   const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } =
     useDropzone({
@@ -225,11 +182,11 @@ export default function FolderViewers(props: FolderViewersProps) {
     }),
     [isDragAccept, isDragReject]
   );
+
   return (
     <Dropzone
       onDrop={(acceptedFiles) => {
-        console.log("acceptedFiles", acceptedFiles);
-        setFileUpload(acceptedFiles[0]);
+        setFileUpload(acceptedFiles);
       }}
       noClick={true}
     >
@@ -289,65 +246,17 @@ export default function FolderViewers(props: FolderViewersProps) {
                     index < currentPage * fileForPages
                   ) {
                     return (
-                      <div
-                        className="flex flex-row gap-3 items-center"
-                        key={`${index}-fileInfoList`}
-                      >
-                        <input
-                          type="checkbox"
-                          name=""
-                          id=""
-                          className=" h-5 w-5 border-[2px] border-[#9A9AAF] dark:border-[#64646F] rounded-sm bg-transparent focus:outline-none transition duration-200 "
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedFiles([
-                                ...selectedFiles,
-                                `${file.fileName}.${file.fileType}`,
-                              ]);
-                            } else {
-                              setSelectedFiles(
-                                selectedFiles.filter(
-                                  (selectedFile) =>
-                                    selectedFile !==
-                                    `${file.fileName}.${file.fileType}`
-                                )
-                              );
-                            }
-                          }}
-                        />
-                        <div className="flex flex-row gap-5 ml-3 items-center w-10/12 h-full">
-                          <img
-                            src={getImagePathIcon(file.fileType.toUpperCase())}
-                            alt=""
-                          />
-                          <div className="flex flex-col justify-between">
-                            <p className="font-semibold font-[14px] text-[#07070C] dark:text-[#F1F1F1]">
-                              {file.fileName}
-                            </p>
-                            <p className="text-[#9A9AAF] dark:text-[#64646F] font-[12px]">
-                              on{" "}
-                              {
-                                // on 2022/02/17 at 11:21 AM
-                                new Date(file.fileDate).toLocaleDateString() +
-                                  " at " +
-                                  new Date(file.fileDate).toLocaleTimeString(
-                                    "en-US",
-                                    {
-                                      hour: "numeric",
-                                      minute: "numeric",
-                                      hour12: true,
-                                    }
-                                  )
-                              }
-                            </p>
-                          </div>
-                          <div className="ml-auto lg:flex flex-row gap-4">
-                            <p className="text-[#7E7E8F] dark:text-[#8B8B93] font-[10px]">
-                              {file.fileSize}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
+                      <FileRow
+                        key={index}
+                        fileName={file.fileName}
+                        fileSize={file.fileSize}
+                        fileType={file.fileType}
+                        fileDate={file.fileDate}
+                        selectedFiles={selectedFiles}
+                        setSelectedFiles={setSelectedFiles}
+                        folderSelected={folderSelected}
+                        refreshList={getFilesInFolderFromServer}
+                      />
                     );
                   }
                 })

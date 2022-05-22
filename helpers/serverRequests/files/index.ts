@@ -86,15 +86,17 @@ export const getFilesInFolder = async (token: string, folderName: string) => {
   }
 };
 
-export const uploadFileInFolder = async (
+export const uploadFilesInFolder = async (
   token: string,
   folderName: string,
-  file: File,
+  files: File[],
   setFileUploadProgress: (progress: number) => void
 ) => {
   try {
     const formData = new FormData();
-    formData.append("file", file);
+    files.forEach((file: File) => {
+      formData.append("files", file);
+    });
 
     const response = await axios.request({
       method: "post",
@@ -186,6 +188,32 @@ export const deleteFolder = async (token: string, folderName: string) => {
       url: `${mainUrl}/files/deleteFolders/${folderName}`,
       headers: {
         Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  } catch (err: any) {
+    return {
+      status: err.response.status,
+      data: {
+        message: err.response.data.message,
+      },
+    };
+  }
+};
+
+export const changeFileName = async (token: string, folderName: string, oldFileName: string, newFileName: string, fileType: string) => {
+  try {
+    const response = await axios.request({
+      method: "post",
+      url: `${mainUrl}/files/changeFileName`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: {
+        folderName,
+        oldFileName,
+        newFileName,
+        fileType,
       },
     });
     return response;

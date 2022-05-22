@@ -15,6 +15,7 @@ export default function Pagination(props: PaginationProps) {
 
   const [currentPage, setCurrentPage] = useState(props.currentPage);
 
+
   return (
     <div className="flex flex-row gap-10 items-center mt-5 pb-2">
       <div className="flex flex-row justify-between items-center">
