@@ -1,8 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { clearLocalStorage } from "../../localStorage";
 
-const mainUrl =
-  process.env.MAIN_URL || "http://localhost:3001/api";
+const mainUrl = process.env.MAIN_URL || "http://localhost:3001/api";
 
 export const getFilesAverageType = async (token: string) => {
   try {
@@ -72,6 +71,119 @@ export const getFilesInFolder = async (token: string, folderName: string) => {
     const response = await axios.request({
       method: "get",
       url: `${mainUrl}/files/getFilesInFolder/${folderName}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  } catch (err: any) {
+    return {
+      status: err.response.status,
+      data: {
+        message: err.response.data.message,
+      },
+    };
+  }
+};
+
+export const uploadFileInFolder = async (
+  token: string,
+  folderName: string,
+  file: File,
+  setFileUploadProgress: (progress: number) => void
+) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await axios.request({
+      method: "post",
+      url: `${mainUrl}/files/uploadFileInFolder/${folderName}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+      data: formData,
+      onUploadProgress: (progressEvent) => {
+        const progress = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total
+        );
+        setFileUploadProgress(progress);
+      },
+    });
+    return response;
+  } catch (err: any) {
+    return {
+      status: err.response.status,
+      data: {
+        message: err.response.data.message,
+      },
+    };
+  }
+};
+
+export const deleteFiles = async (
+  token: string,
+  fileNames: string[],
+  folderName: string
+) => {
+  try {
+    const response = await axios.request({
+      method: "post",
+      url: `${mainUrl}/files/deleteFiles`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: {
+        filesNames: fileNames.join("/"),
+        folderName,
+      },
+    });
+    return response;
+  } catch (err: any) {
+    return {
+      status: err.response.status,
+      data: {
+        message: err.response.data.message,
+      },
+    };
+  }
+};
+
+export const downloadFiles = async (
+  token: string,
+  fileNames: string[],
+  folderName: string
+) => {
+  try {
+    const response = await axios.request({
+      method: "post",
+      url: `${mainUrl}/files/downloadFiles`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      responseType: "blob",
+      data: {
+        filesNames: fileNames.join("/"),
+        folderName,
+      },
+    });
+    return response;
+  } catch (err: any) {
+    return {
+      status: err.response.status,
+      data: {
+        message: err.response.data.message,
+      },
+    };
+  }
+};
+
+export const deleteFolder = async (token: string, folderName: string) => {
+  try {
+    const response = await axios.request({
+      method: "DELETE",
+      url: `${mainUrl}/files/deleteFolders/${folderName}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },

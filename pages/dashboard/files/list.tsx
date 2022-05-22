@@ -14,7 +14,10 @@ import PageTitle from "../../../components/PageTitle";
 import StorageOverview from "../../../components/StorageOverview";
 import NewActiveUsers from "../../../components/NewActiveUsers";
 import Link from "next/link";
-import { getFolders } from "../../../helpers/serverRequests/files";
+import {
+  deleteFolder,
+  getFolders,
+} from "../../../helpers/serverRequests/files";
 import FilesAddFolderModal from "../../../components/FilesAddFolderModal";
 import FolderViewers from "../../../components/FolderViewers";
 const Chat: NextPage = () => {
@@ -23,6 +26,9 @@ const Chat: NextPage = () => {
 
   const [isOpenLeftBar, setIsOpenLeftBar] = useState(true);
   const [folders, setFolders] = useState([]);
+
+  const [dropDownOptions, setDropDownOptions] = useState<string | null>(null);
+  const [successDeleteFolder, setSuccessDeleteFolder] = useState(false);
 
   const [isOpenAddFolderModal, setIsOpenAddFolderModal] = useState(false);
   const [isModalActive, setIsModalActive] = useState(false);
@@ -47,6 +53,25 @@ const Chat: NextPage = () => {
       setFolders([]);
     }
   };
+
+  const deleteFolderFunction = async (folderName: string) => {
+    try {
+      const token = await JSON.parse(await getItem("token"));
+      const response = await deleteFolder(token, folderName);
+      if (response.status === 200) {
+        if (response.data.isError === false) {
+          setSuccessDeleteFolder(true);
+          setTimeout(() => {
+            setSuccessDeleteFolder(false);
+          }, 2000);
+          getFoldersFromServer();
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     checkToken();
     getFoldersFromServer();
@@ -118,10 +143,14 @@ const Chat: NextPage = () => {
                     (folder: { folder: string; files: string }, index) => {
                       return (
                         <div
-                          className="flex flex-row items-center justify-between w-full bg-none dark:hover:bg-[#313442] px-4 rounded-lg max-h-[2.5em] py-5 cursor-pointer transition"
+                          className="flex flex-row items-center justify-between w-full bg-none dark:hover:bg-[#313442] px-4 rounded-lg max-h-[2.5em] py-5 cursor-pointer transition relative"
                           key={`folder-${index}-${folder.folder}`}
                           onClick={() => {
                             setFolderSelected(folder.folder);
+                          }}
+                          onContextMenu={(e) => {
+                            e.preventDefault();
+                            setDropDownOptions(folder.folder);
                           }}
                         >
                           <div className="flex flex-row gap-3">
@@ -137,6 +166,23 @@ const Chat: NextPage = () => {
                           <p className="text-[#7E7E8F] dark:text-[#8B8B93] text-[12px]">
                             {folder.files} files
                           </p>
+                          <div
+                            className={`${
+                              dropDownOptions === folder.folder ? "block" : "hidden"
+                            } bg-white dark:bg-[#1F2128] absolute bottom-[-3em] right-[1em] rounded-xl border-[1px] border-[#E8EDF2] dark:border-[#313442] p-2 mt-2 z-50`}
+                            onMouseLeave={() => setDropDownOptions(null)}
+                          >
+                            <div className="inline-flex flex-col">
+                              <a
+                                className="block mx-auto text-[14px] text-[#7E7E8F] dark:text-[#8B8B93] hover:bg-[#F5F5FA] hover:text-[#07070C] dark:hover:bg-[#0F0F12] dark:hover:text-[#fff] py-3 px-5 rounded-[8px] cursor-pointer"
+                                onClick={() => {
+                                  deleteFolderFunction(folder.folder);
+                                }}
+                              >
+                                Delete
+                              </a>
+                            </div>
+                          </div>
                         </div>
                       );
                     }
@@ -150,7 +196,11 @@ const Chat: NextPage = () => {
             </div>
           </div>
           <div className="col-span-10 xl:col-span-8 rounded-lg shadow-lg p-5 bg-white dark:bg-[#1F2128] border-[1px] border-[#E8EDF2] dark:border-[#313442] rounded-xl p-[24px] pt-[14px] max-h-[32vh] max-h-[100vh] mt-10 lg:mt-0 overflow-auto">
-            <FolderViewers folderSelected={folderSelected} setFolderSelected={setFolderSelected} />
+            <FolderViewers
+              folderSelected={folderSelected}
+              setFolderSelected={setFolderSelected}
+              refreshList={getFoldersFromServer}
+            />
           </div>
         </div>
         <Footer />

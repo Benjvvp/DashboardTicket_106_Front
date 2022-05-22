@@ -36,6 +36,14 @@ export default function FilesAddFolderModal(props: FilesAddFolderModal) {
         setFolderNameError("Folder name can't have space");
         return;
       }
+      if(folderName.length > 15){
+        setFolderNameError("Folder name can't have more than 15 characters");
+        return;
+      }
+      if(folderName.includes("/") || folderName.includes("+")){
+        setFolderNameError("Folder name can't have / or +");
+        return;
+      }
       const token = await JSON.parse(await getItem("token"));
       const response = await createFolder(token, folderName);
       if (response.status === 200) {
