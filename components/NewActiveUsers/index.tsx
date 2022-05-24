@@ -37,7 +37,6 @@ export default function NewActiveUsers() {
         {users.length > 0 ? (
           <div className="flex flex-col w-full gap-5">
             {users
-              .filter((user: any) => user.filesPushed > 0)
               .sort((a: any, b: any) => b.filesPushed - a.filesPushed)
               .slice(0, 6)
               .map((user: any) => (

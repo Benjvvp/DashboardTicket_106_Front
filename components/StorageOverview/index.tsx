@@ -68,7 +68,6 @@ export default function StorageOverview() {
           chartArea: { left, top, right, bottom, width, height },
         } = chart;
         ctx.save();
-        console.log(chart);
 
         ctx.font = "bold 14px Poppins";
         ctx.fillStyle = "#8B8B93";

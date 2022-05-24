@@ -75,6 +75,11 @@ const Chat: NextPage = () => {
   useEffect(() => {
     checkToken();
     getFoldersFromServer();
+    if (router.isReady) {
+      if (router.query.folderSelected) {
+        setFolderSelected(router.query.folderSelected.toString());
+      }
+    }
   }, []);
 
   return (
@@ -168,7 +173,9 @@ const Chat: NextPage = () => {
                           </p>
                           <div
                             className={`${
-                              dropDownOptions === folder.folder ? "block" : "hidden"
+                              dropDownOptions === folder.folder
+                                ? "block"
+                                : "hidden"
                             } bg-white dark:bg-[#1F2128] absolute bottom-[-3em] right-[1em] rounded-xl border-[1px] border-[#E8EDF2] dark:border-[#313442] p-2 mt-2 z-50`}
                             onMouseLeave={() => setDropDownOptions(null)}
                           >

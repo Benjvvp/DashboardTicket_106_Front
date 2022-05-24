@@ -88,6 +88,7 @@ export const getFilesInFolder = async (token: string, folderName: string) => {
 
 export const uploadFilesInFolder = async (
   token: string,
+  userId: string,
   folderName: string,
   files: File[],
   setFileUploadProgress: (progress: number) => void
@@ -100,7 +101,7 @@ export const uploadFilesInFolder = async (
 
     const response = await axios.request({
       method: "post",
-      url: `${mainUrl}/files/uploadFileInFolder/${folderName}`,
+      url: `${mainUrl}/files/uploadFileInFolder/${userId}/${folderName}`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",
@@ -137,7 +138,7 @@ export const deleteFiles = async (
         Authorization: `Bearer ${token}`,
       },
       data: {
-        filesNames: fileNames.join("/"),
+        filesNames: fileNames.length > 0 ? fileNames.join("/") : fileNames.toString(),
         folderName,
       },
     });
@@ -201,7 +202,13 @@ export const deleteFolder = async (token: string, folderName: string) => {
   }
 };
 
-export const changeFileName = async (token: string, folderName: string, oldFileName: string, newFileName: string, fileType: string) => {
+export const changeFileName = async (
+  token: string,
+  folderName: string,
+  oldFileName: string,
+  newFileName: string,
+  fileType: string
+) => {
   try {
     const response = await axios.request({
       method: "post",
@@ -214,6 +221,26 @@ export const changeFileName = async (token: string, folderName: string, oldFileN
         oldFileName,
         newFileName,
         fileType,
+      },
+    });
+    return response;
+  } catch (err: any) {
+    return {
+      status: err.response.status,
+      data: {
+        message: err.response.data.message,
+      },
+    };
+  }
+};
+
+export const getFiles = async (token: string) => {
+  try {
+    const response = await axios.request({
+      method: "GET",
+      url: `${mainUrl}/files/getFiles`,
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
     });
     return response;

@@ -20,7 +20,6 @@ const ChatUser: NextPage = () => {
   const idUserParam = router.query._id as string;
 
   const chatRef = useRef<HTMLDivElement>(null);
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [messagesToShow, setMessagesToShow] = useState<number>(100);
   const { userData } = useContext(UserContext);
 
@@ -80,7 +79,7 @@ const ChatUser: NextPage = () => {
         userId: userChat._id,
         senderId: userData._id,
       };
-      socket?.emit("chatSubmitMessage", data);
+      userData.socket?.emit("chatSubmitMessage", data);
       setInputMessage("");
       chatRef.current?.scrollTo(0, chatRef.current?.scrollHeight);
     }
@@ -210,53 +209,47 @@ const ChatUser: NextPage = () => {
     getMessagesInChat,
   ]);
   useEffect(() => {
-    const newSocket = io("http://localhost:3001");
-    newSocket.on("connect", () => {
-      newSocket.emit("join", { userId: userData._id });
-    });
-    newSocket.on("disconnect", () => {
-      newSocket.emit("leave", { userId: userData._id });
-    });
-    if (userData._id && userChat._id) {
-      newSocket.emit("getUsersListInChat", {
-        userId: userData._id,
+    if (userData.socket) {
+      if (userData._id && userChat._id) {
+        userData.socket.emit("getUsersListInChat", {
+          userId: userData._id,
+        });
+        userData.socket.emit("loadMessages", {
+          userId: userData._id,
+          senderId: userChat._id,
+        });
+        userData.socket.emit("getUsersListInChat", {
+          userId: userData._id,
+        });
+      }
+      userData.socket.on("getUsersListInChat", (data: any) => {
+        setUsers(data.usersList);
+        setUsersLoading(false);
       });
-      newSocket.emit("loadMessages", {
-        userId: userData._id,
-        senderId: userChat._id,
+      userData.socket.on("loadMessages", (data: any) => {
+        setMessages(data.messages);
+        setMessagesLoading(false);
+        if (chatRef.current) {
+          chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
+        }
       });
-      newSocket.emit("getUsersListInChat", {
-        userId: userData._id,
+      userData.socket.on("getUsersListInChat", (data: any) => {
+        setUsers(data.usersList);
+        setUsersLoading(false);
+        data.usersList.forEach((user: any) => {
+          setMessagesCount(messagesCount + user.messagesCount);
+        });
       });
     }
-    newSocket.on("getUsersListInChat", (data: any) => {
-      setUsers(data.usersList);
-      setUsersLoading(false);
-    });
-    newSocket.on("loadMessages", (data: any) => {
-      setMessages(data.messages);
-      setMessagesLoading(false);
-      if (chatRef.current) {
-        chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
-      }
-    });
-    newSocket.on("getUsersListInChat", (data: any) => {
-      setUsers(data.usersList);
-      setUsersLoading(false);
-      data.usersList.forEach((user: any) => {
-        setMessagesCount(messagesCount + user.messagesCount);
-      });
-    });
-    setSocket(newSocket);
-  }, [setSocket, userData._id, usersLoading, userChat._id]);
+  }, [userData._id, usersLoading, userChat._id]);
 
   useEffect(() => {
-    if (userChat._id && userData._id) {
-      socket?.emit("chatSeen", {
+    if (userChat._id && userData._id && userData.socket) {
+      userData.socket.emit("chatSeen", {
         userId: userData._id,
         senderId: userChat._id,
       });
-      socket?.on("chatSeen", () => {
+      userData.socket.on("chatSeen", () => {
         const newMessages = [...messages];
         newMessages.forEach((message) => {
           if (message.sender === userChat._id) {
@@ -265,7 +258,7 @@ const ChatUser: NextPage = () => {
         });
         setMessages(newMessages);
       });
-      socket?.on(
+      userData.socket.on(
         "newMessage",
         (data: {
           message: string;
@@ -280,7 +273,7 @@ const ChatUser: NextPage = () => {
         }
       );
     }
-  }, [messages, setMessages, userChat._id, userData._id, socket]);
+  }, [messages, setMessages, userChat._id, userData._id]);
   return (
     <div className="bg-[#E8EDF2] mt-[100px] h-full max-w-screen min-w-screen dark:bg-[#0F0F12] overflow-hidden">
       <Head>

@@ -1,7 +1,9 @@
 import { useTheme } from "next-themes";
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/router";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import Dropzone, { useDropzone } from "react-dropzone";
+import { UserContext } from "../../contexts/userContext/UserContext";
 import { getItem } from "../../helpers/localStorage";
 import {
   deleteFiles,
@@ -43,6 +45,8 @@ export default function FolderViewers(props: FolderViewersProps) {
 
   const [searchInput, setSearchInput] = useState("");
 
+  const { userData } = useContext(UserContext);
+
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
 
   const getFilesInFolderFromServer = async () => {
@@ -51,6 +55,7 @@ export default function FolderViewers(props: FolderViewersProps) {
       const token = await JSON.parse(await getItem("token"));
       const response = await getFilesInFolder(token, folderSelected);
       if (response.status === 200) {
+        console.log(response)
         if (response.data.isError === false) {
           setFileLists(response.data.files);
           setCountPage(Math.ceil(response.data.files.length / fileForPages));
@@ -69,6 +74,7 @@ export default function FolderViewers(props: FolderViewersProps) {
         const token = await JSON.parse(await getItem("token"));
         const response = await uploadFilesInFolder(
           token,
+          userData._id,
           folderSelected,
           fileUpload,
           setFileUploadProgress
@@ -159,8 +165,8 @@ export default function FolderViewers(props: FolderViewersProps) {
   }, [folderSelected]);
 
   useEffect(() => {
-    console.log(selectedFiles)
-  }, [selectedFiles])
+    console.log(selectedFiles);
+  }, [selectedFiles]);
 
   const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } =
     useDropzone({

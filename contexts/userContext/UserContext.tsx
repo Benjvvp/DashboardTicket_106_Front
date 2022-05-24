@@ -1,4 +1,5 @@
 import { createContext } from "react";
+import { Socket } from "socket.io-client";
 
 type UserContextType = {
       userData: {
@@ -9,7 +10,8 @@ type UserContextType = {
           avatar: string,
           createdAt: string,
           updatedAt: string,
-          role: string, 
+          role: string,
+          socket: Socket | null,
       },
       isLoggedIn: boolean,
       setUserData: (state: any) => void,

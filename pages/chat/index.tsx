@@ -15,7 +15,6 @@ import Link from "next/link";
 
 const Chat: NextPage = () => {
   const router = useRouter();
-  const [socket, setSocket] = useState<Socket | null>(null);
 
   const { userData } = useContext(UserContext);
 
@@ -82,37 +81,30 @@ const Chat: NextPage = () => {
 
   useEffect(() => {
     checkToken();
-    const newSocket = io("http://localhost:3001/api");
-    newSocket.on("connect", () => {
-      newSocket.emit("join", { userId: userData._id });
-    });
-    newSocket.on("disconnect", () => {
-      newSocket.emit("leave", { userId: userData._id });
-    });
-    if (userData._id) {
-      newSocket.emit("getUsersListInChat", {
+    console.log("userData.socket", userData.socket);
+    if (userData._id && userData.socket) {
+      console.log("userData.socket", userData.socket);
+      userData.socket.emit("getUsersListInChat", {
         userId: userData._id,
       });
+      userData.socket.on("getUsersListInChat", (data: any) => {
+        console.log(data)
+        setUsers(data.usersList);
+        setUsersLoading(false);
+      });
     }
-    newSocket.on("getUsersListInChat", (data: any) => {
-      console.log(data)
-      setUsers(data.usersList);
-      setUsersLoading(false);
-    });
-    setSocket(newSocket);
-  }, [setSocket, userData._id, usersLoading]);
+    
+  }, [userData, usersLoading]);
 
   useEffect(() => {
-    if (socket) {
-      if (userData._id) {
-        socket.on("chatMessage", (data: any) => {
-          socket.emit("getUsersListInChat", {
+      if (userData._id && userData.socket) {
+        userData.socket.on("chatMessage", (data: any) => {
+          userData.socket?.emit("getUsersListInChat", {
             userId: userData._id,
           });
         });
-      }
     }
-  }, [socket, users, orderChatList]);
+  }, [users, orderChatList]);
   return (
     <div className="bg-[#E8EDF2] mt-[100px] h-full max-w-screen min-w-screen dark:bg-[#0F0F12] overflow-hidden">
       <Head>

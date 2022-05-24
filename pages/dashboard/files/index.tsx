@@ -14,6 +14,8 @@ import PageTitle from "../../../components/PageTitle";
 import StorageOverview from "../../../components/StorageOverview";
 import NewActiveUsers from "../../../components/NewActiveUsers";
 import Link from "next/link";
+import RecentFolders from "../../../components/RecentFolders";
+import RecentFiles from "../../../components/RecentFiles";
 const Chat: NextPage = () => {
   const router = useRouter();
   const { userData } = useContext(UserContext);
@@ -65,7 +67,10 @@ const Chat: NextPage = () => {
           ]}
         />
         <div className="grid grid-cols-6 gap-3 min-h-[75vh] w-full mb-[8vh] mt-5">
-          <div className="col-span-4 rounded-lg p-5"></div>
+          <div className="col-span-4 rounded-lg p-5 flex flex-col gap-10">
+            <RecentFolders />
+            <RecentFiles />
+          </div>
           <div className="col-span-2 rounded-lg p-5 flex flex-col gap-10">
             <StorageOverview />
             <div className="w-full">

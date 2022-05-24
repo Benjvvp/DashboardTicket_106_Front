@@ -10,7 +10,6 @@ export const loginUser = async (data: { email: string; password: string }) => {
       url: `${mainUrl}/auth/login`,
       data,
     });
-    console.log(response)
     return response;
   } catch (err: any) {
     return {
