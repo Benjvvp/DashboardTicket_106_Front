@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { clearLocalStorage } from "../../localStorage";
 
-const mainUrl = process.env.MAIN_URL || "http://localhost:3001/api";
+const mainUrl = process.env.NEXT_PUBLIC_MAIN_URL || "http://localhost:3001/api";
 
 export const getFilesAverageType = async (token: string) => {
   try {

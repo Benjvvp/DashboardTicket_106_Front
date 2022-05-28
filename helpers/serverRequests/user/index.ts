@@ -2,7 +2,7 @@ import axios from "axios";
 import { createReadStream } from "fs";
 
 const mainUrl =
-  process.env.MAIN_URL || "http://localhost:3001/api";
+  process.env.NEXT_PUBLIC_MAIN_URL || "http://localhost:3001/api";
 
 export const getAllUsers = async (token: string) => {
   try {
