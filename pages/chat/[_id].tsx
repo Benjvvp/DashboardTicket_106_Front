@@ -14,6 +14,7 @@ import io, { Socket } from "socket.io-client";
 import { UserContext } from "../../contexts/userContext/UserContext";
 import { getMessagesInChat } from "../../helpers/serverRequests/chat";
 import Link from "next/link";
+import { SocketContext } from "../../contexts/socketContext/SocketContext";
 
 const ChatUser: NextPage = () => {
   const router = useRouter();
@@ -21,7 +22,9 @@ const ChatUser: NextPage = () => {
 
   const chatRef = useRef<HTMLDivElement>(null);
   const [messagesToShow, setMessagesToShow] = useState<number>(100);
+
   const { userData } = useContext(UserContext);
+  const { socket } = useContext(SocketContext);
 
   const [users, setUsers] = useState([
     {
@@ -79,7 +82,7 @@ const ChatUser: NextPage = () => {
         userId: userChat._id,
         senderId: userData._id,
       };
-      userData.socket?.emit("chatSubmitMessage", data);
+      socket?.emit("chatSubmitMessage", data);
       setInputMessage("");
       chatRef.current?.scrollTo(0, chatRef.current?.scrollHeight);
     }
@@ -209,47 +212,45 @@ const ChatUser: NextPage = () => {
     getMessagesInChat,
   ]);
   useEffect(() => {
-    if (userData.socket) {
-      if (userData._id && userChat._id) {
-        userData.socket.emit("getUsersListInChat", {
-          userId: userData._id,
-        });
-        userData.socket.emit("loadMessages", {
-          userId: userData._id,
-          senderId: userChat._id,
-        });
-        userData.socket.emit("getUsersListInChat", {
-          userId: userData._id,
-        });
-      }
-      userData.socket.on("getUsersListInChat", (data: any) => {
-        setUsers(data.usersList);
-        setUsersLoading(false);
+    if (userData._id && userChat._id && socket) {
+      socket.emit("getUsersListInChat", {
+        userId: userData._id,
       });
-      userData.socket.on("loadMessages", (data: any) => {
-        setMessages(data.messages);
-        setMessagesLoading(false);
-        if (chatRef.current) {
-          chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
-        }
-      });
-      userData.socket.on("getUsersListInChat", (data: any) => {
-        setUsers(data.usersList);
-        setUsersLoading(false);
-        data.usersList.forEach((user: any) => {
-          setMessagesCount(messagesCount + user.messagesCount);
-        });
-      });
-    }
-  }, [userData._id, usersLoading, userChat._id]);
-
-  useEffect(() => {
-    if (userChat._id && userData._id && userData.socket) {
-      userData.socket.emit("chatSeen", {
+      socket.emit("loadMessages", {
         userId: userData._id,
         senderId: userChat._id,
       });
-      userData.socket.on("chatSeen", () => {
+      socket.emit("getUsersListInChat", {
+        userId: userData._id,
+      });
+    }
+    socket?.on("getUsersListInChat", (data: any) => {
+      setUsers(data.usersList);
+      setUsersLoading(false);
+    });
+    socket?.on("loadMessages", (data: any) => {
+      setMessages(data.messages);
+      setMessagesLoading(false);
+      if (chatRef.current) {
+        chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
+      }
+    });
+    socket?.on("getUsersListInChat", (data: any) => {
+      setUsers(data.usersList);
+      setUsersLoading(false);
+      data.usersList.forEach((user: any) => {
+        setMessagesCount(messagesCount + user.messagesCount);
+      });
+    });
+  }, [userData._id, usersLoading, userChat._id]);
+
+  useEffect(() => {
+    if (userChat._id && userData._id && socket) {
+      socket.emit("chatSeen", {
+        userId: userData._id,
+        senderId: userChat._id,
+      });
+      socket.on("chatSeen", () => {
         const newMessages = [...messages];
         newMessages.forEach((message) => {
           if (message.sender === userChat._id) {
@@ -258,7 +259,7 @@ const ChatUser: NextPage = () => {
         });
         setMessages(newMessages);
       });
-      userData.socket.on(
+      socket.on(
         "newMessage",
         (data: {
           message: string;
@@ -595,6 +596,14 @@ const ChatUser: NextPage = () => {
                               </div>
                             </div>
                           </div>
+                          <p className="text-right mr-10">
+                            {messages.length === index + 1 &&
+                              (message.seen ? (
+                                <span className="text-[#9A9AAF] dark:text-[#64646F] mt-2 text-sm">Seen</span>
+                              ) : (
+                                <span className="text-[#9A9AAF] dark:text-[#64646F] mt-2 text-sm">Not seen</span>
+                              ))}
+                          </p>
                         </div>
                       </div>
                     );

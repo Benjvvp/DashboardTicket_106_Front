@@ -12,11 +12,13 @@ import styles from "../../styles/components/topBar.module.css";
 import io, { Socket } from "socket.io-client";
 import { UserContext } from "../../contexts/userContext/UserContext";
 import Link from "next/link";
+import { SocketContext } from "../../contexts/socketContext/SocketContext";
 
 const Chat: NextPage = () => {
   const router = useRouter();
 
   const { userData } = useContext(UserContext);
+  const { socket } = useContext(SocketContext);
 
   const [users, setUsers] = useState([
     {
@@ -81,30 +83,27 @@ const Chat: NextPage = () => {
 
   useEffect(() => {
     checkToken();
-    console.log("userData.socket", userData.socket);
-    if (userData._id && userData.socket) {
-      console.log("userData.socket", userData.socket);
-      userData.socket.emit("getUsersListInChat", {
+    if (userData._id && socket) {
+      socket.emit("join", { userId: userData._id });
+
+      socket.on("disconnect", () => {
+        socket.emit("leave", { userId: userData._id });
+      });
+
+      socket.emit("getUsersListInChat", {
         userId: userData._id,
       });
-      userData.socket.on("getUsersListInChat", (data: any) => {
-        console.log(data)
+      socket.on("getUsersListInChat", (data: any) => {
         setUsers(data.usersList);
         setUsersLoading(false);
       });
-    }
-    
-  }, [userData, usersLoading]);
-
-  useEffect(() => {
-      if (userData._id && userData.socket) {
-        userData.socket.on("chatMessage", (data: any) => {
-          userData.socket?.emit("getUsersListInChat", {
-            userId: userData._id,
-          });
+      socket.on("chatMessage", (data: any) => {
+        socket?.emit("getUsersListInChat", {
+          userId: userData._id,
         });
+      });
     }
-  }, [users, orderChatList]);
+  }, [userData, usersLoading, orderChatList]);
   return (
     <div className="bg-[#E8EDF2] mt-[100px] h-full max-w-screen min-w-screen dark:bg-[#0F0F12] overflow-hidden">
       <Head>

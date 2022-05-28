@@ -11,7 +11,6 @@ type UserContextType = {
           createdAt: string,
           updatedAt: string,
           role: string,
-          socket: Socket | null,
       },
       isLoggedIn: boolean,
       setUserData: (state: any) => void,

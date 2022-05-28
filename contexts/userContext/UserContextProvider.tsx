@@ -18,21 +18,10 @@ export default function UserContextProvider({ children }: any) {
     createdAt: "",
     updatedAt: "",
     role: "",
-    socket: null as Socket | null,
   });
 
   const initializeApp = async () => {
     try {
-      // Save socket in userData
-      const socket = io("ws://localhost:3001");
-      socket.on("connect", () => {
-        socket.emit("join", { userId: userData._id });
-      });
-      socket.on("disconnect", () => {
-        socket.emit("leave", { userId: userData._id });
-      });
-      setUserData({ ...userData, socket });
-
       let token = await JSON.parse(await getItem("token"));
       if (!token || token === null) {
         router.push("/auth/login");

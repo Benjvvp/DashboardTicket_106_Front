@@ -50,6 +50,18 @@ const FileEdit: NextPage = () => {
   }
 
   const updateFilePost = async () => {
+    if (fileNameEditing.length === 0) {
+      return setFileNameError("File name is required");
+    } else {
+      setFileNameError("");
+    }
+    if (
+      fileNameEditing.match(/^[a-zA-Z0-9-_]+([.][a-zA-Z0-9-_]+){0,2}$/) === null
+    ) {
+      return setFileNameError("File name cannot contain special characters");
+    } else {
+      setFileNameError("");
+    }
     const token = await JSON.parse(await getItem("token"));
     const response = await updateFile(
       token,
