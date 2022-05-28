@@ -17,7 +17,7 @@ export default function SocketContextProvider({ children }: any) {
         router.push("/auth/login");
         return;
       }
-      setSocket(io(`http://localhost:3001`));
+      setSocket(io(`http://162.212.153.119`));
     } catch (error) {
       setSocket(null);
     }
