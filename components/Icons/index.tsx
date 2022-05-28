@@ -334,7 +334,7 @@ export function FileTypeFolderIcon(props: { color: string }) {
     return null;
   }
 
-  let fillColor = color ? color : "#fff";
+  const fillColor = color ? color : "#fff";
   return (
     <svg
       width="24"
