@@ -1,12 +1,14 @@
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { getItem } from "../../helpers/localStorage";
-import { changeFileName } from "../../helpers/serverRequests/files";
+import { updateFile } from "../../helpers/serverRequests/files";
 
 interface FileRowProps {
   fileName: string;
   fileType: string;
   fileDate: Date;
   fileSize: number;
+  fileId: string;
   setSelectedFiles: (selectedFiles: string[]) => void;
   selectedFiles: string[];
   folderSelected: string | null;
@@ -15,45 +17,20 @@ interface FileRowProps {
 
 export default function FileRow(props: FileRowProps) {
   const checkBoxRef = useRef<HTMLInputElement>(null);
-  const inputTextRef = useRef<HTMLInputElement>(null);
 
   const [editFileNameActive, setEditFileNameActive] = useState<boolean>(false);
-  const [fileNameEditing, setFileNameEditing] = useState<string>(
-    props.fileName
-  );
 
   const {
     fileName,
     fileType,
     fileDate,
     fileSize,
+    fileId,
     setSelectedFiles,
     selectedFiles,
     folderSelected,
     refreshList,
   } = props;
-
-  const updateFileName = async () => {
-    if (editFileNameActive && folderSelected !== null) {
-      const token = await JSON.parse(await getItem("token"));
-      const response = await changeFileName(
-        token,
-        folderSelected,
-        fileName,
-        fileNameEditing,
-        fileType
-      );
-      if (response.status === 200) {
-        if (response.data.isError === false) {
-          setEditFileNameActive(false);
-          refreshList();
-        }
-        if (response.data.isError === true) {
-          console.log(response.data);
-        }
-      }
-    }
-  };
 
   const getImagePathIcon = (fileType: string) => {
     switch (fileType) {
@@ -114,71 +91,25 @@ export default function FileRow(props: FileRowProps) {
         className=" h-5 w-5 border-[2px] border-[#9A9AAF] dark:border-[#64646F] rounded-sm bg-transparent focus:outline-none transition duration-200 "
         onChange={(e) => {
           if (e.target.checked) {
-            setSelectedFiles([...selectedFiles, `${fileName}.${fileType}`]);
+            setSelectedFiles([...selectedFiles, fileId]);
           } else {
             setSelectedFiles(
-              selectedFiles.filter(
-                (selectedFile) => selectedFile !== `${fileName}.${fileType}`
-              )
+              selectedFiles.filter((selectedFile) => selectedFile !== fileId)
             );
           }
         }}
-        checked={selectedFiles.includes(`${fileName}.${fileType}`)}
+        checked={selectedFiles.includes(fileId)}
         ref={checkBoxRef}
       />
       <div className="flex flex-row gap-5 ml-3 items-center w-10/12 h-full">
         <img src={getImagePathIcon(fileType.toUpperCase())} alt="" />
         <div className="flex flex-col justify-between">
-          {editFileNameActive ? (
-            <input
-              type="text"
-              className="w-full h-full bg-transparent focus:outline-none transition duration-200"
-              value={fileNameEditing}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  setEditFileNameActive(false);
-                  setSelectedFiles(
-                    selectedFiles.filter(
-                      (selectedFile) =>
-                        selectedFile !== `${fileName}.${fileType}`
-                    )
-                  );
-                  updateFileName();
-                }
-              }}
-              onChange={(e) => {
-                setFileNameEditing(e.target.value);
-              }}
-              onMouseLeave={() => {
-                setEditFileNameActive(false);
-                if (fileNameEditing !== fileName) {
-                  setSelectedFiles(
-                    selectedFiles.filter(
-                      (selectedFile) =>
-                        selectedFile !== `${fileName}.${fileType}`
-                    )
-                  );
-                  updateFileName();
-                }
-                setFileNameEditing(fileName);
-              }}
-              autoFocus
-              ref={inputTextRef}
-            />
-          ) : (
-            <p
-              className="font-semibold font-[14px] text-[#07070C] dark:text-[#F1F1F1]"
-              onDoubleClick={(e) => {
-                e.preventDefault();
-                setEditFileNameActive(true);
-                if (inputTextRef.current) {
-                  inputTextRef.current.focus();
-                }
-              }}
-            >
+          <Link href={`/dashboard/files/file/${fileId}`}>
+            <p className="font-semibold font-[14px] text-[#07070C] dark:text-[#F1F1F1]">
               {fileName}
             </p>
-          )}
+          </Link>
+
           <p className="text-[#9A9AAF] dark:text-[#64646F] font-[12px]">
             on{" "}
             {

@@ -3,31 +3,17 @@ import { useState } from "react";
 
 interface RecentFilesRowProps {
   setSelectedFiles: (files: string[]) => void;
-  deleteFilesFunction: (folderName: string, fileName: string[]) => void;
+  deleteFilesFunction: (idFiles: string[]) => void;
   selectedFiles: string[];
   file: any;
 }
 export default function RecentFilesRow(props: RecentFilesRowProps) {
   const [dropDownOptions, setDropDownOptions] = useState<boolean>(false);
 
-  const {setSelectedFiles,  deleteFilesFunction, selectedFiles, file} = props;
+  const { setSelectedFiles, deleteFilesFunction, selectedFiles, file } = props;
 
-  function formatBytes(bytes: number, decimals = 0) {
-    if (bytes === 0) return "0 Bytes";
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  }
-  
   return (
-    <tr
-      className="font-[14px] text-[#9A9AAF] text-[14px] dark:text-[#F1F1F1] align-middle border-t-[1px] border-[#E8EDF2] dark:border-[#313442]"
-    >
+    <tr className="font-[14px] text-[#9A9AAF] text-[14px] dark:text-[#F1F1F1] align-middle border-t-[1px] border-[#E8EDF2] dark:border-[#313442]">
       <td className="pt-4 pb-4">
         <input
           type="checkbox"
@@ -36,24 +22,24 @@ export default function RecentFilesRow(props: RecentFilesRowProps) {
           className="w-[18px] h-[18px] border-[2px] border-[#9A9AAF] dark:border-[#64646F] rounded-sm bg-transparent focus:outline-none transition duration-200"
           onChange={(e) => {
             if (e.target.checked) {
-              setSelectedFiles([...selectedFiles, `${file.fileName}`]);
+              setSelectedFiles([...selectedFiles, `${file.fileId}`]);
             } else {
               setSelectedFiles(
                 selectedFiles.filter(
-                  (selectedFile) => selectedFile !== `${file.fileName}`
+                  (selectedFile) => selectedFile !== `${file.fileId}`
                 )
               );
             }
           }}
-          checked={selectedFiles.includes(`${file.fileName}`)}
+          checked={selectedFiles.includes(`${file.fileId}`)}
         />
       </td>
       <td className="font-normal">
-        <Link href={`/files/${file.id}`}>
+        <Link href={`/dashboard/files/file/${file.fileId}`}>
           <p className="cursor-pointer">{file.fileName}</p>
         </Link>
       </td>
-      <td className="font-normal">{formatBytes(file.fileSize)}</td>
+      <td className="font-normal">{file.fileSize}</td>
       <td className="font-normal">
         {new Date(file.fileModified).toLocaleDateString("en-US", {
           year: "numeric",
@@ -64,10 +50,10 @@ export default function RecentFilesRow(props: RecentFilesRowProps) {
       </td>
       <td className="font-normal">{file.folderName}</td>
       <td className="font-normal">
-        <div className="h-full ml-auto w-1/12 flex flex-col relative">
+        <div className="h-full w-1/12 flex flex-col relative">
           <img
             src="/svg/Toggle.svg"
-            className="ml-auto cursor-pointer  rotate-90 md:rotate-0 mt-5 md:mt-0"
+            className="ml-auto cursor-pointer rotate-90 md:rotate-0 mt-5 md:mt-0"
             alt=""
             srcSet=""
             onClick={() => setDropDownOptions(!dropDownOptions)}
@@ -79,7 +65,7 @@ export default function RecentFilesRow(props: RecentFilesRowProps) {
             onMouseLeave={() => setDropDownOptions(false)}
           >
             <div className="inline-flex flex-col">
-              <Link href={`/dashboard/files/file/${file._id}`}>
+              <Link href={`/dashboard/files/file/${file.fileId}`}>
                 <a className="block mx-auto text-[14px] text-[#7E7E8F] dark:text-[#8B8B93] hover:bg-[#F5F5FA] hover:text-[#07070C] dark:hover:bg-[#0F0F12] dark:hover:text-[#fff] py-3 px-5 rounded-[8px] cursor-pointer">
                   Edit
                 </a>
@@ -88,13 +74,13 @@ export default function RecentFilesRow(props: RecentFilesRowProps) {
               <a
                 className="block mx-auto text-[14px] text-[#7E7E8F] dark:text-[#8B8B93] hover:bg-[#F5F5FA] hover:text-[#07070C] dark:hover:bg-[#0F0F12] dark:hover:text-[#fff] py-3 px-5 rounded-[8px] cursor-pointer"
                 onClick={() => {
-                  if(selectedFiles.length > 1) {
-                    deleteFilesFunction(file.folderName, selectedFiles);
+                  if (selectedFiles.length > 1) {
+                    deleteFilesFunction(selectedFiles);
                     setSelectedFiles([]);
                   } else {
-                    deleteFilesFunction(file.folderName, [`${file.fileName}`]);
+                    deleteFilesFunction([`${file.fileId}`]);
                     setSelectedFiles([]);
-                  } 
+                  }
                 }}
               >
                 Delete

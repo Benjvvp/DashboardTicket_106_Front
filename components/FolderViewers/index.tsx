@@ -26,6 +26,7 @@ interface fileLists {
   fileSize: number;
   fileDate: Date;
   filePath: string;
+  fileId: string;
   isSelected: boolean;
   fileLastModified: Date;
 }
@@ -55,7 +56,7 @@ export default function FolderViewers(props: FolderViewersProps) {
       const token = await JSON.parse(await getItem("token"));
       const response = await getFilesInFolder(token, folderSelected);
       if (response.status === 200) {
-        console.log(response)
+        console.log(response);
         if (response.data.isError === false) {
           setFileLists(response.data.files);
           setCountPage(Math.ceil(response.data.files.length / fileForPages));
@@ -93,14 +94,10 @@ export default function FolderViewers(props: FolderViewersProps) {
   };
 
   const deleteFilesFunction = async () => {
-    if (selectedFiles.length > 0 && folderSelected) {
+    if (selectedFiles.length > 0) {
       try {
         const token = await JSON.parse(await getItem("token"));
-        const response = await deleteFiles(
-          token,
-          selectedFiles,
-          folderSelected
-        );
+        const response = await deleteFiles(token, selectedFiles);
         if (response.status === 200) {
           if (response.data.isError === false) {
             getFilesInFolderFromServer();
@@ -258,6 +255,7 @@ export default function FolderViewers(props: FolderViewersProps) {
                         fileSize={file.fileSize}
                         fileType={file.fileType}
                         fileDate={file.fileDate}
+                        fileId={file.fileId}
                         selectedFiles={selectedFiles}
                         setSelectedFiles={setSelectedFiles}
                         folderSelected={folderSelected}

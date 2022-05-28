@@ -127,8 +127,7 @@ export const uploadFilesInFolder = async (
 
 export const deleteFiles = async (
   token: string,
-  fileNames: string[],
-  folderName: string
+  idFiles: string[],
 ) => {
   try {
     const response = await axios.request({
@@ -138,8 +137,8 @@ export const deleteFiles = async (
         Authorization: `Bearer ${token}`,
       },
       data: {
-        filesNames: fileNames.length > 0 ? fileNames.join("/") : fileNames.toString(),
-        folderName,
+        idFiles:
+          idFiles.length > 0 ? idFiles.join("/") : idFiles.toString(),
       },
     });
     return response;
@@ -202,25 +201,23 @@ export const deleteFolder = async (token: string, folderName: string) => {
   }
 };
 
-export const changeFileName = async (
+export const updateFile = async (
   token: string,
-  folderName: string,
-  oldFileName: string,
-  newFileName: string,
-  fileType: string
+  idFile: string,
+  fileNameEditing: string,
+  fileDescriptionEditing: string
 ) => {
   try {
     const response = await axios.request({
       method: "post",
-      url: `${mainUrl}/files/changeFileName`,
+      url: `${mainUrl}/files/updateFile`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
       data: {
-        folderName,
-        oldFileName,
-        newFileName,
-        fileType,
+        idFile,
+        fileNameEditing,
+        fileDescriptionEditing,
       },
     });
     return response;
@@ -239,6 +236,26 @@ export const getFiles = async (token: string) => {
     const response = await axios.request({
       method: "GET",
       url: `${mainUrl}/files/getFiles`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  } catch (err: any) {
+    return {
+      status: err.response.status,
+      data: {
+        message: err.response.data.message,
+      },
+    };
+  }
+};
+
+export const getFile = async (token: string, fileId: string) => {
+  try {
+    const response = await axios.request({
+      method: "GET",
+      url: `${mainUrl}/files/getFile/${fileId}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },

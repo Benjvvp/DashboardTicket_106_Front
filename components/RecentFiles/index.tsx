@@ -16,6 +16,7 @@ export default function RecentFiles() {
     const response = await getFiles(token);
     if (response.status === 200) {
       if (response.data.isError === false) {
+        console.log(response.data.files);
         setFiles(response.data.files);
         setIsLoading(false);
       }
@@ -25,12 +26,11 @@ export default function RecentFiles() {
     }
   };
   const deleteFilesFunction = async (
-    folderName: string,
-    fileNames: string[]
+    idFiles: string[],
   ) => {
     try {
       const token = await JSON.parse(await getItem("token"));
-      const response = await deleteFiles(token, fileNames, folderName);
+      const response = await deleteFiles(token, idFiles);
 
       if (response.status === 200) {
         if (response.data.isError === false) {
@@ -73,7 +73,7 @@ export default function RecentFiles() {
                       if (e.target.checked) {
                         setSelectedFiles(
                           files.map((file: any) => {
-                            return file.fileName;
+                            return file.fileId;
                           })
                         );
                       } else {
