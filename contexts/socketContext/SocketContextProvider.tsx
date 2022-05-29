@@ -17,7 +17,7 @@ export default function SocketContextProvider({ children }: any) {
         router.push("/auth/login");
         return;
       }
-      setSocket(io(`${process.env.NEXT_PUBLIC_MAIN_URL as string}`));
+      setSocket(io(`${process.env.NEXT_PUBLIC_MAIN_URL as string || "http://localhost:3001"}`));
     } catch (error) {
       setSocket(null);
     }
