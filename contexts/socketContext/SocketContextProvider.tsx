@@ -8,16 +8,13 @@ import { io, Socket } from "socket.io-client";
 export default function SocketContextProvider({ children }: any) {
   const router = useRouter();
 
+  const mainUrl = process.env.NEXT_PUBLIC_MAIN_URL?.replace('/api', '') || "http://localhost:3001";
+
   const [socket, setSocket] = useState<Socket | null>();
 
   const initializeApp = async () => {
     try {
-      let token = await JSON.parse(await getItem("token"));
-      if (!token || token === null) {
-        router.push("/auth/login");
-        return;
-      }
-      setSocket(io(`${process.env.NEXT_PUBLIC_MAIN_URL as string || "http://localhost:3001"}`));
+      setSocket(io(mainUrl));
     } catch (error) {
       setSocket(null);
     }
