@@ -56,7 +56,6 @@ export default function FolderViewers(props: FolderViewersProps) {
       const token = await JSON.parse(await getItem("token"));
       const response = await getFilesInFolder(token, folderSelected);
       if (response.status === 200) {
-        console.log(response);
         if (response.data.isError === false) {
           setFileLists(response.data.files);
           setCountPage(Math.ceil(response.data.files.length / fileForPages));

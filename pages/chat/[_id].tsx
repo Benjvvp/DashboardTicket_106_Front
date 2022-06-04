@@ -26,17 +26,7 @@ const ChatUser: NextPage = () => {
   const { userData } = useContext(UserContext);
   const { socket } = useContext(SocketContext);
 
-  const [users, setUsers] = useState([
-    {
-      _id: "",
-      userName: "",
-      avatar: "",
-      isOnline: false,
-      lastMessage: "",
-      lastMessageTime: "",
-      unseenMessagesCount: 0,
-    },
-  ]);
+  const [users, setUsers] = useState<any[]>([]);
   const [userChat, setUserChat] = useState({
     _id: "",
     userName: "",
@@ -173,6 +163,7 @@ const ChatUser: NextPage = () => {
     const response = await getUser(token, userId);
     if (response.status === 200) {
       if (response.data.isError === false) {
+        console.log(users);
         const isOnline = users.find((user) => user._id === userId)?.isOnline;
         setUserChat({
           _id: response.data.user._id,
@@ -189,9 +180,7 @@ const ChatUser: NextPage = () => {
   useEffect(() => {
     checkToken();
     if (router.isReady) {
-      if (users) {
-        getUserById(idUserParam);
-      }
+      getUserById(idUserParam);
     }
 
     if (!messagesLoading) {
@@ -213,6 +202,13 @@ const ChatUser: NextPage = () => {
   ]);
   useEffect(() => {
     if (userData._id && userChat._id && socket) {
+      socket.emit("join", { userId: userData._id });
+
+      socket.on("disconnect", () => {
+        console.log("a");
+        socket.emit("leave", { userId: userData._id });
+      });
+
       socket.emit("getUsersListInChat", {
         userId: userData._id,
       });
@@ -227,6 +223,13 @@ const ChatUser: NextPage = () => {
     socket?.on("getUsersListInChat", (data: any) => {
       setUsers(data.usersList);
       setUsersLoading(false);
+      const userChatIsOnline = data.usersList.find(
+        (user: any) => user._id === userChat._id
+      )?.isOnline;
+      setUserChat({
+        ...userChat,
+        isOnline: userChatIsOnline ? userChatIsOnline : false,
+      });
     });
     socket?.on("loadMessages", (data: any) => {
       setMessages(data.messages);
@@ -275,6 +278,10 @@ const ChatUser: NextPage = () => {
       );
     }
   }, [messages, setMessages, userChat._id, userData._id]);
+
+  useEffect(() => {
+    console.log(users);
+  }, [users, userChat]);
   return (
     <div className="bg-[#E8EDF2] mt-[100px] h-full max-w-screen min-w-screen dark:bg-[#0F0F12] overflow-hidden">
       <Head>
@@ -599,9 +606,13 @@ const ChatUser: NextPage = () => {
                           <p className="text-right mr-10">
                             {messages.length === index + 1 &&
                               (message.seen ? (
-                                <span className="text-[#9A9AAF] dark:text-[#64646F] mt-2 text-sm">Seen</span>
+                                <span className="text-[#9A9AAF] dark:text-[#64646F] mt-2 text-sm">
+                                  Seen
+                                </span>
                               ) : (
-                                <span className="text-[#9A9AAF] dark:text-[#64646F] mt-2 text-sm">Not seen</span>
+                                <span className="text-[#9A9AAF] dark:text-[#64646F] mt-2 text-sm">
+                                  Not seen
+                                </span>
                               ))}
                           </p>
                         </div>

@@ -15,6 +15,7 @@ export default function SocketContextProvider({ children }: any) {
   const initializeApp = async () => {
     try {
       setSocket(io(mainUrl));
+      
     } catch (error) {
       setSocket(null);
     }
