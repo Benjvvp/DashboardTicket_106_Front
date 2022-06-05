@@ -125,10 +125,7 @@ export const uploadFilesInFolder = async (
   }
 };
 
-export const deleteFiles = async (
-  token: string,
-  idFiles: string[],
-) => {
+export const deleteFiles = async (token: string, idFiles: string[]) => {
   try {
     const response = await axios.request({
       method: "post",
@@ -137,8 +134,7 @@ export const deleteFiles = async (
         Authorization: `Bearer ${token}`,
       },
       data: {
-        idFiles:
-          idFiles.length > 0 ? idFiles.join("/") : idFiles.toString(),
+        idFiles: idFiles.length > 0 ? idFiles.join("/") : idFiles.toString(),
       },
     });
     return response;
@@ -152,11 +148,7 @@ export const deleteFiles = async (
   }
 };
 
-export const downloadFiles = async (
-  token: string,
-  fileNames: string[],
-  folderName: string
-) => {
+export const downloadFiles = async (token: string, idFiles: string[]) => {
   try {
     const response = await axios.request({
       method: "post",
@@ -166,8 +158,7 @@ export const downloadFiles = async (
       },
       responseType: "blob",
       data: {
-        filesNames: fileNames.join("/"),
-        folderName,
+        idFiles: idFiles,
       },
     });
     return response;

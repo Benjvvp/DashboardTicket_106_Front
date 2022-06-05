@@ -119,8 +119,7 @@ export default function FolderViewers(props: FolderViewersProps) {
         const token = await JSON.parse(await getItem("token"));
         const response = (await downloadFiles(
           token,
-          selectedFiles,
-          folderSelected
+          selectedFiles
         )) as any;
         if (response.status === 200) {
           const url = window.URL.createObjectURL(
@@ -133,9 +132,7 @@ export default function FolderViewers(props: FolderViewersProps) {
           link.href = url;
           link.setAttribute(
             "download",
-            response.headers["content-type"].split("/")[1] !== "zip"
-              ? `${selectedFiles[0]}`
-              : `rytaleFiles.zip`
+            `rytaleFiles.zip`
           );
           document.body.appendChild(link);
           link.click();

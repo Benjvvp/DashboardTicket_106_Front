@@ -74,13 +74,12 @@ export default function RecentFilesRow(props: RecentFilesRowProps) {
               <a
                 className="block mx-auto text-[14px] text-[#7E7E8F] dark:text-[#8B8B93] hover:bg-[#F5F5FA] hover:text-[#07070C] dark:hover:bg-[#0F0F12] dark:hover:text-[#fff] py-3 px-5 rounded-[8px] cursor-pointer"
                 onClick={() => {
-                  if (selectedFiles.length > 1) {
-                    deleteFilesFunction(selectedFiles);
-                    setSelectedFiles([]);
-                  } else {
-                    deleteFilesFunction([`${file.fileId}`]);
-                    setSelectedFiles([]);
-                  }
+                  deleteFilesFunction([`${file.fileId}`]);
+                  setSelectedFiles([
+                    ...selectedFiles.filter(
+                      (selectedFile) => selectedFile !== `${file.fileId}`
+                    ),
+                  ]);
                 }}
               >
                 Delete

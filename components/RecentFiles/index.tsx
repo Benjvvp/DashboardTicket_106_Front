@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { getItem } from "../../helpers/localStorage";
 import "chart.js/auto";
-import { deleteFiles, getFiles } from "../../helpers/serverRequests/files";
+import {
+  deleteFiles,
+  downloadFiles,
+  getFiles,
+} from "../../helpers/serverRequests/files";
 import { FileTypeFolderIcon } from "../Icons";
 import Link from "next/link";
 import RecentFilesRow from "../RecentFilesRow";
@@ -25,9 +29,7 @@ export default function RecentFiles() {
       setFiles([]);
     }
   };
-  const deleteFilesFunction = async (
-    idFiles: string[],
-  ) => {
+  const deleteFilesFunction = async (idFiles: string[]) => {
     try {
       const token = await JSON.parse(await getItem("token"));
       const response = await deleteFiles(token, idFiles);
@@ -43,6 +45,30 @@ export default function RecentFiles() {
       console.log(error);
     }
   };
+  const downloadFilesFunction = async () => {
+    if (selectedFiles.length > 0) {
+      try {
+        const token = await JSON.parse(await getItem("token"));
+        const response = (await downloadFiles(token, selectedFiles)) as any;
+        if (response.status === 200) {
+          const url = window.URL.createObjectURL(
+            new Blob([response.data], {
+              type: response.headers["content-type"],
+            })
+          );
+
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", `rytaleFiles.zip`);
+          document.body.appendChild(link);
+          link.click();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   useEffect(() => {
     getFilesFromServer();
   }, []);
@@ -57,6 +83,26 @@ export default function RecentFiles() {
         <h4 className="font-semibold text-[16px] text-[#07070C] dark:text-white">
           Recent Files
         </h4>
+        {selectedFiles.length > 0 && (
+          <div className="flex items-center relative h-full flex-initial gap-3 flex-wrap">
+            <button
+              className={`bg-[] border-[1px] border-[#E8EDF2] dark:border-[#313442] py-2 rounded-xl text-[#C6CBD9] font-[14px] w-[100px] max-h-[50px] min-h-[50px]`}
+              onClick={() => {
+                deleteFilesFunction(selectedFiles);
+              }}
+            >
+              Delete
+            </button>
+            <button
+              className={`bg-[] border-[1px] border-[#E8EDF2] dark:border-[#313442] py-2 rounded-xl text-[#C6CBD9] font-[14px] w-[100px] max-h-[50px] min-h-[50px]`}
+              onClick={() => {
+                downloadFilesFunction();
+              }}
+            >
+              Download
+            </button>
+          </div>
+        )}
       </div>
       <div className="p-5">
         <table className="table-auto w-full">
